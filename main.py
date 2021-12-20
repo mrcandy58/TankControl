@@ -1,13 +1,8 @@
-# This is a sample Python script.
+# Python script to control fuel transfer and cleaning between tanks
 
-# Press ⇧F10 to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     from guizero import App
-    app = App(title="hello World")
-    app.display()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    app = App(title='Fuel Tank Control', width=1024, height=600)
+
+    app.display()
