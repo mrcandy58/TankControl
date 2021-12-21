@@ -1,4 +1,6 @@
 from valve import Valve
+from pump import Pump
+from filter import Filter
 
 
 class CreatePID:
@@ -27,3 +29,5 @@ class CreatePID:
         self.portDischargeValve.set_partner(self.stbdDischargeValve)
         self.stbdDischargeValve.set_partner(self.portDischargeValve)
 
+        self.filter = Filter(self.canvas, 400, 180)
+        self.pump = Pump(self.canvas, 600, 180)

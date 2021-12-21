@@ -8,11 +8,11 @@ class Valve:
         self.partner = None
 
         self.left = self.canvas.triangle(self.x - self.size, self.y - self.size,
-                                         self.x - self.size, self.y + self.size, x, y,
-                                         outline=True, outline_color="gray", )
+                                         self.x - self.size, self.y + self.size, self.x, self.y,
+                                         outline=2, outline_color="gray")
         self.right = self.canvas.triangle(self.x + self.size, self.y - self.size,
-                                          self.x + self.size, self.y + self.size, x, y,
-                                          outline=True, outline_color="gray", )
+                                          self.x + self.size, self.y + self.size, self.x, self.y,
+                                          outline=2, outline_color="gray")
         if self.state:
             self.open()
         else:
