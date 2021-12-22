@@ -1,22 +1,23 @@
 class Valve:
-    def __init__(self, cnv, x, y, state=False, size=20):
+    def __init__(self, pid, x, y, name, state=False, size=20):
         self.x = x
         self.y = y
-        self.canvas = cnv
+        self.pid = pid
         self.state = state
         self.size = size
         self.partner = None
+        self.name = name
 
-        self.left = self.canvas.triangle(self.x - self.size, self.y - self.size,
-                                         self.x - self.size, self.y + self.size, self.x, self.y,
-                                         outline=2, outline_color="gray")
-        self.right = self.canvas.triangle(self.x + self.size, self.y - self.size,
-                                          self.x + self.size, self.y + self.size, self.x, self.y,
-                                          outline=2, outline_color="gray")
+        self.left = self.pid.canvas.triangle(self.x - self.size, self.y - self.size,
+                                             self.x - self.size, self.y + self.size, self.x, self.y,
+                                             outline=2, outline_color="gray")
+        self.right = self.pid.canvas.triangle(self.x + self.size, self.y - self.size,
+                                              self.x + self.size, self.y + self.size, self.x, self.y,
+                                              outline=2, outline_color="gray")
         if self.state:
             self.open()
         else:
-            self.close()
+            self.close(doCheck=False)
 
     def set_partner(self, partner):
         self.partner = partner
@@ -25,10 +26,15 @@ class Valve:
         if self.partner is not None:
             self.partner.close()
         self.state = True
-        self.canvas.tk.itemconfigure(self.left, fill="green")
-        self.canvas.tk.itemconfigure(self.right, fill="green")
+        print(self.name, "open")
+        self.pid.canvas.tk.itemconfigure(self.left, fill="green")
+        self.pid.canvas.tk.itemconfigure(self.right, fill="green")
+        self.pid.pump.setPermissive(self.pid.isPathOpen())
 
-    def close(self):
+    def close(self, doCheck=True):
         self.state = False
-        self.canvas.tk.itemconfigure(self.left, fill="red")
-        self.canvas.tk.itemconfigure(self.right, fill="red")
+        print(self.name, "close")
+        self.pid.canvas.tk.itemconfigure(self.left, fill="red")
+        self.pid.canvas.tk.itemconfigure(self.right, fill="red")
+        if doCheck:
+            self.pid.pump.setPermissive(self.pid.isPathOpen())
