@@ -5,10 +5,10 @@ from data import CreateData
 
 if __name__ == '__main__':
 
-    app = App(title='Fuel Tank Control', width=1024, height=600, layout="grid")
+    app = App(title='Fuel Tank Control', width=1024, height=600)
 
-    canvas = Drawing(app, 1024, 315, grid=[0, 0])
-    canvas.bg = "grey70"
+    canvas = Drawing(app, 1024, 315)
+    canvas.bg = "grey20"
 
     pid = CreatePID(canvas)
     canvas.repeat(500, pid.flasher)

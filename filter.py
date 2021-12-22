@@ -22,8 +22,8 @@ class Filter:
 
     def clear(self):
         self.state = True
-        self.pid.canvas.tk.itemconfigure(self.shell1, outline="green")
-        self.pid.canvas.tk.itemconfigure(self.shell2, outline="green")
+        self.pid.canvas.tk.itemconfigure(self.shell1, outline="green2")
+        self.pid.canvas.tk.itemconfigure(self.shell2, outline="green2")
 
     def plugged(self):
         self.state = False

@@ -44,6 +44,7 @@ class Pump:
         if not perm and self.state:
             self.stop()
             self.alarm = True
+            print("alarm on")
         self.updatePID()
 
     def updatePID(self):
@@ -54,7 +55,7 @@ class Pump:
                 color = "grey"
         elif self.permissive:
             if self.state:
-                color = "green"  # Running
+                color = "green2"  # Running
             else:
                 color = "red"  # Permitted to start
         else:

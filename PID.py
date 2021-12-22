@@ -44,6 +44,7 @@ class CreatePID:
         if self.pump.isPumpHit(event.x, event.y):
             if self.pump.alarm:
                 self.pump.alarm = False
+                print("alarm off")
                 self.pump.updatePID()
             else:
                 self.pump.toggle()
