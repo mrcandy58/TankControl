@@ -5,73 +5,91 @@ class CreateData:
     def __init__(self, app, pid):
         self.app = app
         self.pid = pid
-        self.box = Box(self.app, grid=[0, 1], layout="grid")
-        self.box.bg = "grey50"
-        self.box.width = "fill"
+        self.box = Box(self.app, align="top", width=1024, height=200)
+        self.box.bg = "grey20"
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
-        self.volume = 0
-        self.time = 0
 
         col = 0
-        Box(self.box, grid=[col, 0], width="fill")
-        #  Text(self.box, text="", color="white", grid=[col, 0], width="fill")
+        b = Box(self.box, align="left", width=100, height=200)
+        Text(b, text="", color="white")
 
         col += 1
-        Text(self.box, text="Port", size=24, color="red", grid=[col, 0])
-        Text(self.box, text="xx.x", size=24, color="white", grid=[col, 1])
-        Text(self.box, text="xxx", size=24, color="white", grid=[col, 2])
+        b = Box(self.box, align="left", width=75, height=200)
+        Text(b, text="Port", size=24, color="red2", align="top")
+        Text(b, text="xx.x", size=24, color="white", align="top")
+        Text(b, text="xxx", size=24, color="white", align="top")
+        Text(b, text="", size=24, color="white", align="top")
 
         col += 1
-        Text(self.box, text="%", size=24, color="white", grid=[col, 1])
-        Text(self.box, text="L", size=24, color="white", grid=[col, 2])
+        b = Box(self.box, align="left", width=20, height=200)
+        Text(b, text="", size=24, color="white")
+        Text(b, text="%", size=24, color="white")
+        Text(b, text="L", size=24, color="white")
+        Text(b, text="", size=24, color="white")
 
         col += 1
-        Text(self.box, text="", color="white", grid=[col, 0], width="fill")
+        b = Box(self.box, align="left", width=100, height=200)
+        Text(b, text="", size=24, color="white")
 
         col += 1
-        Text(self.box, text="Transfer:", size=24, color="white", grid=[col, 0], align="right")
-        Text(self.box, text="Time:", size=24, color="white", grid=[col, 1], align="right")
-        Text(self.box, text="Source:", size=24, color="white", grid=[col, 2], align="right")
-        Text(self.box, text="Destination:", size=24, color="white", grid=[col, 3], align="right")
+        b = Box(self.box, align="left", width=150, height=200)
+        Text(b, text="Transfer:", size=24, color="white")
+        Text(b, text="Time:", size=24, color="white")
+        Text(b, text="Destination:", size=24, color="white")
+        Text(b, text="Source:", size=24, color="white")
 
         col += 1
-        TextBox(self.box, grid=[col, 0])
-        TextBox(self.box, grid=[col, 1])
-        self.portSrc = CheckBox(self.box, text="Port", grid=[col, 2])
-        self.portDst = CheckBox(self.box, text="Port", grid=[col, 3])
-        self.portSrc.bg = self.portDst.bg = "red"
+        b = Box(self.box, align="left", width=75, height=200)
+        self.volume = TextBox(b, text="0")
+        self.time = TextBox(b, text="0")
+        self.volume.text_size = self.time.text_size = 19
+        self.portDst = CheckBox(b, text="Port", width=100)
+        self.portSrc = CheckBox(b, text="Port", width=100)
+        self.portSrc.bg = self.portDst.bg = "red4"
+        self.portSrc.text_size = self.portDst.text_size = 20
 
         col += 1
-        Text(self.box, text="L", size=24, color="white", grid=[col, 0], align="left")
-        Text(self.box, text="min:sec", size=24, color="white", grid=[col, 1], align="left")
-        self.stbdSrc = CheckBox(self.box, text="Stbd", grid=[col, 2])
-        self.stbdDst = CheckBox(self.box, text="Stbd", grid=[col, 3])
-        self.stbdSrc.bg = self.stbdDst.bg = "green"
+        b = Box(self.box, align="left", width=90, height=200)
+        Text(b, text="L", size=24, color="white")
+        Text(b, text="min:sec", size=24, color="white")
+        self.stbdDst = CheckBox(b, text="Stbd", width=100)
+        self.stbdSrc = CheckBox(b, text="Stbd", width=100)
+        self.stbdSrc.bg = self.stbdDst.bg = "green4"
+        self.stbdSrc.text_size = self.stbdDst.text_size = 20
 
         col += 1
-        self.volUp = PushButton(self.box, text="^", grid=[col, 0], image="up_arrow.png", pady=5)
-        self.timUp = PushButton(self.box, text="^", grid=[col, 1], image="up_arrow.png", pady=5)
+        b = Box(self.box, align="left", width=25, height=200)
+        self.volUp = PushButton(b, text="^", image="up_arrow.png", pady=5)
+        self.timUp = PushButton(b, text="^", image="up_arrow.png", pady=5)
         self.volUp.bg = self.timUp.bg = "white"
+        Text(b, text="", size=24, color="white")
+        Text(b, text="", size=24, color="white")
 
         col += 1
-        self.volDn = PushButton(self.box, text="v", grid=[col, 0], image="down_arrow.png", pady=5)
-        self.timDn = PushButton(self.box, text="v", grid=[col, 1], image="down_arrow.png", pady=5)
+        b = Box(self.box, align="left", width=25, height=200)
+        self.volDn = PushButton(b, text="v", image="down_arrow.png", pady=5)
+        self.timDn = PushButton(b, text="v", image="down_arrow.png", pady=5)
         self.volDn.bg = self.timDn.bg = "white"
+        Text(b, text="", size=24, color="white")
+        Text(b, text="", size=24, color="white")
 
         col += 1
-        Text(self.box, text="", color="white", grid=[col, 0], width="fill")
+        b = Box(self.box, align="left", width=135, height=200)
+        Text(b, text="", size=24, color="white")
 
         col += 1
-        Text(self.box, text="Stbd", size=24, align="top", color="green", grid=[col, 0])
-        Text(self.box, text="xx.x", size=24, color="white", grid=[col, 1])
-        Text(self.box, text="xxx", size=24, color="white", grid=[col, 2])
+        b = Box(self.box, align="left", width=75, height=200)
+        Text(b, text="Stbd", size=24, color="green")
+        Text(b, text="xx.x", size=24, color="white")
+        Text(b, text="xxx", size=24, color="white")
+        Text(b, text="", size=24, color="white")
 
         col += 1
-        Text(self.box, text="%", size=24, color="white", grid=[col, 1])
-        Text(self.box, text="L", size=24, color="white", grid=[col, 2])
-
-        col += 1
-        Text(self.box, text="", color="white", grid=[col, 0], width="fill")
+        b = Box(self.box, align="left", width=20, height=200)
+        Text(b, text="", size=24, color="white")
+        Text(b, text="%", size=24, color="white")
+        Text(b, text="L", size=24, color="white")
+        Text(b, text="", size=24, color="white")
 
         self.portSrc.update_command(self.doValve, [self.portSrc])
         self.portDst.update_command(self.doValve, [self.portDst])

@@ -27,8 +27,8 @@ class Valve:
             self.partner.close()
         self.state = True
         print(self.name, "open")
-        self.pid.canvas.tk.itemconfigure(self.left, fill="green")
-        self.pid.canvas.tk.itemconfigure(self.right, fill="green")
+        self.pid.canvas.tk.itemconfigure(self.left, fill="green2")
+        self.pid.canvas.tk.itemconfigure(self.right, fill="green2")
         self.pid.pump.setPermissive(self.pid.isPathOpen())
 
     def close(self, doCheck=True):
