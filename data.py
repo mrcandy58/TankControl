@@ -33,10 +33,10 @@ class CreateData:
 
         col += 1
         b = Box(self.box, align="left", width=225, height=200)
-        Text(b, text="Transfer:", font="courier", size=24, color="white")
-        Text(b, text="Time:", font="courier", size=24, color="white")
-        Text(b, text="Destination:", font="courier", size=24, color="white")
-        Text(b, text="Source:", font="courier", size=24, color="white")
+        Text(b, text="Transfer:", size=24, color="white")
+        Text(b, text="Time:", size=24, color="white")
+        Text(b, text="Destination:", size=24, color="white")
+        Text(b, text="Source:", size=24, color="white")
 
         col += 1
         w = 110
