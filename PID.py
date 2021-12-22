@@ -6,7 +6,6 @@ from filter import Filter
 class CreatePID:
     def __init__(self, cnv):
         self.canvas = cnv
-        self.canvas.bg = "grey20"
         self.flash = False
 
         self.portTank = self.canvas.rectangle(100, 100, 199, 299, outline=True, outline_color="grey")
