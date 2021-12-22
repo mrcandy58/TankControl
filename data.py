@@ -21,7 +21,7 @@ class CreateData:
         Text(b, text="", size=24, color="white", align="top")
 
         col += 1
-        b = Box(self.box, align="left", width=20, height=200)
+        b = Box(self.box, align="left", width=25, height=200)
         Text(b, text="", size=24, color="white")
         Text(b, text="%", size=24, color="white")
         Text(b, text="L", size=24, color="white")
@@ -32,7 +32,7 @@ class CreateData:
         Text(b, text="", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=150, height=200)
+        b = Box(self.box, align="left", width=175, height=200)
         Text(b, text="Transfer:", font="courier", size=24, color="white")
         Text(b, text="Time:", font="courier", size=24, color="white")
         Text(b, text="Destination:", font="courier", size=24, color="white")
@@ -49,7 +49,7 @@ class CreateData:
         self.portSrc.text_size = self.portDst.text_size = 20
 
         col += 1
-        b = Box(self.box, align="left", width=90, height=200)
+        b = Box(self.box, align="left", width=100, height=200)
         Text(b, text="L", size=24, color="white")
         Text(b, text="min:sec", size=24, color="white")
         self.stbdDst = CheckBox(b, text="Stbd", width=100)
@@ -85,7 +85,7 @@ class CreateData:
         Text(b, text="", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=20, height=200)
+        b = Box(self.box, align="left", width=25, height=200)
         Text(b, text="", size=24, color="white")
         Text(b, text="%", size=24, color="white")
         Text(b, text="L", size=24, color="white")
