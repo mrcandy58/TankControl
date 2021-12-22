@@ -46,6 +46,7 @@ class CreateData:
         self.volume = TextBox(b1, text="0")
         self.time = TextBox(b1, text="0")
         self.volume.text_size = self.time.text_size = 19
+        self.volume.text_color = self.time.text_color = "white"
         self.portDst = CheckBox(b2, text="Port", width=w)
         self.portSrc = CheckBox(b2, text="Port", width=w)
         self.portSrc.bg = self.portDst.bg = "red4"
