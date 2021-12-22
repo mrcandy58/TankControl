@@ -28,7 +28,7 @@ class CreateData:
         Text(b, text="", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=80, height=200)
+        b = Box(self.box, align="left", width=50, height=200)
         Text(b, text="", size=24, color="white")
 
         col += 1
