@@ -39,7 +39,7 @@ class CreateData:
         Text(b, text="Source:", font="courier", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=75, height=200)
+        b = Box(self.box, align="left", width=100, height=200)
         self.volume = TextBox(b, text="0")
         self.time = TextBox(b, text="0")
         self.volume.text_size = self.time.text_size = 19
@@ -74,7 +74,7 @@ class CreateData:
         Text(b, text="", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=80, height=200)
+        b = Box(self.box, align="left", width=55, height=200)
         Text(b, text="", size=24, color="white")
 
         col += 1
