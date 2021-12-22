@@ -43,7 +43,7 @@ class CreateData:
         b = Box(self.box, align="left", width=w, height=200)
         self.volume = TextBox(b, text="0")
         self.time = TextBox(b, text="0")
-        self.volume.text_size = self.time.text_size = 20
+        self.volume.text_size = self.time.text_size = 19
         self.portDst = CheckBox(b, text="Port", width=w)
         self.portSrc = CheckBox(b, text="Port", width=w)
         self.portSrc.bg = self.portDst.bg = "red4"
