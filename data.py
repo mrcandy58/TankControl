@@ -66,7 +66,7 @@ class CreateData:
         self.stbdSrc.text_size = self.stbdDst.text_size = 20
 
         col += 1
-        b = Box(self.box, align="left", width=25, height=200)
+        b = Box(self.box, align="left", width=40, height=200)
         self.volUp = PushButton(b, text="^", image="up_arrow.png", pady=5)
         self.volUp.when_left_button_pressed = self.volUpStart
         self.volUp.when_left_button_released = self.volUpEnd
@@ -78,7 +78,7 @@ class CreateData:
         Text(b, text="", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=25, height=200)
+        b = Box(self.box, align="left", width=40, height=200)
         self.volDn = PushButton(b, text="v", image="down_arrow.png", pady=5)
         self.volDn.when_left_button_pressed = self.volDnStart
         self.volDn.when_left_button_released = self.volDnEnd
@@ -90,7 +90,7 @@ class CreateData:
         Text(b, text="", size=24, color="white")
 
         col += 1
-        b = Box(self.box, align="left", width=55, height=200)
+        b = Box(self.box, align="left", width=30, height=200)
         Text(b, text="", size=24, color="white")
 
         col += 1
