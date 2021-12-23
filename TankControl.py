@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     app = App(title='Fuel Tank Control', width=1024, height=600)
 
-    canvas = Drawing(app, 1024, 315)
+    canvas = Drawing(app, 1024, 325)
     canvas.bg = "grey20"
 
     pid = CreatePID(canvas)
