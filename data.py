@@ -189,55 +189,53 @@ class CreateData:
         self.volDn.after(500, self.doVolDn)
 
     def timUpStart(self, event):
-        print("Tim up start")
         self.delta = 15
         self.count = 1
         self.timUp.after(10, self.doTimUp, [])
 
     def timUpEnd(self, event):
-        print("Tim up end")
         self.delta = self.count = 0
 
     def doTimUp(self):
-        print("In TimUp")
         if self.count == 0:
             return
         tm = self.time.value.split(":")
         t = int(tm[0]) * 60 + int(tm[1]) + self.delta
         if t >= 1200:
             t = 1200
-            self.time.value = "{:d}:{:02d}".format(int(t / 60), t % 60)
+            self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
             return
-        self.time.value = "{:d}:{:02d}".format(int(t / 60), t % 60)
+        self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
         self.count += 1
         if self.count == 5:
             self.delta = 1 * 60
+        if self.count == 9:
+            self.delta = 5 * 60
         self.timUp.after(500, self.doTimUp)
 
     def timDnStart(self, event):
-        print("Tim dn start")
         self.delta = -15
         self.count = 1
         self.timDn.after(10, self.doTimDn, [])
 
     def timDnEnd(self, event):
-        print("Tim dn end")
         self.delta = self.count = 0
 
     def doTimDn(self):
-        print("In TimDn")
         if self.count == 0:
             return
         tm = self.time.value.split(":")
         t = int(tm[0]) * 60 + int(tm[1]) + self.delta
         if t <= 0:
             t = 0
-            self.time.value = "{:d}:{:02d}".format(int(t / 60), t % 60)
+            self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
             return
-        self.time.value = "{:d}:{:02d}".format(int(t / 60), t % 60)
+        self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
 
         self.count += 1
         if self.count == 5:
             self.delta = -1 * 60
+        if self.count == 9:
+            self.delta = -5 * 60
         self.timDn.after(500, self.doTimDn)
 
