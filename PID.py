@@ -4,9 +4,11 @@ from filter import Filter
 
 
 class CreatePID:
-    def __init__(self, cnv):
+    def __init__(self, cnv, fs):
+        self.fs = fs
         self.canvas = cnv
         self.flash = False
+        self.data = None
 
         self.portTank = self.canvas.rectangle(100, 100, 199, 299, outline=True, outline_color="grey")
         self.stbdTank = self.canvas.rectangle(800, 100, 899, 299, outline=True, outline_color="gray")
@@ -33,19 +35,21 @@ class CreatePID:
         self.filter = Filter(self, 400, 180)
         self.pump = Pump(self, 600, 180)
 
+        self.portFuel = self.canvas.rectangle(101, 101, 198, 298, outline=False, color="deepskyblue")
+        self.stbdFuel = self.canvas.rectangle(801, 101, 898, 298, outline=False, color="deepskyblue")
+
         self.canvas.when_clicked = self.clicked
 
     def flasher(self):
         self.flash = not self.flash
-        if self.pump.alarm:
-            self.pump.updatePID()
+        self.updatePID()
 
     def clicked(self, event):
         if self.pump.isPumpHit(event.x, event.y):
             if self.pump.alarm:
                 self.pump.alarm = False
                 print("alarm off")
-                self.pump.updatePID()
+                self.updatePID()
             else:
                 self.pump.toggle()
 
@@ -55,3 +59,63 @@ class CreatePID:
             return True
         else:
             return False
+
+    def updatePID(self):
+        # The following is only for testing, needs to be removed
+        self.updateTanks()
+
+        if self.data is not None:
+            self.data.updateData()
+
+        if self.pump.alarm:  # Alarm
+            if self.flash:
+                color = "yellow"
+            else:
+                color = "grey"
+        elif self.pump.permissive:
+            if self.pump.state:
+                color = "green2"  # Running
+            else:
+                color = "red"  # Permitted to start
+        else:
+            if self.pump.state:
+                color = "purple"  # Error
+                print("Got error state")
+            else:
+                color = "grey"  # Not ready
+
+        self.canvas.tk.itemconfigure(self.pump.shell, outline=color)
+        self.canvas.tk.itemconfigure(self.pump.impeller, outline=color)
+
+        x0, y0, x1, y1 = self.canvas.tk.coords(self.portTank)
+        x0 += 1
+        y0 += 1
+        y0 = y0 + ((y1 - y0) * (100 - self.fs.getPortPercent()) / 100)
+        self.canvas.tk.coords(self.portFuel, x0, y0, x1, y1)
+
+        x0, y0, x1, y1 = self.canvas.tk.coords(self.stbdTank)
+        x0 += 1
+        y0 += 1
+        y0 = y0 + ((y1 - y0) * (100 - self.fs.getStbdPercent()) / 100)
+        self.canvas.tk.coords(self.stbdFuel, x0, y0, x1, y1)
+
+    def updateTanks(self):
+        if self.pump.state:
+            if self.portSuctionValve.state:
+                self.fs.portLevel = self.fs.portLevel - self.fs.flowrate / 60 * self.fs.refresh / 1000
+            if self.stbdSuctionValve.state:
+                self.fs.stbdLevel = self.fs.stbdLevel - self.fs.flowrate / 60 * self.fs.refresh / 1000
+            if self.portDischargeValve.state:
+                self.fs.portLevel = self.fs.portLevel + self.fs.flowrate / 60 * self.fs.refresh / 1000
+            if self.stbdDischargeValve.state:
+                self.fs.stbdLevel = self.fs.stbdLevel + self.fs.flowrate / 60 * self.fs.refresh / 1000
+
+    def allValvesClose(self):
+        if self.portSuctionValve.state:
+            self.portSuctionValve.close()
+        if self.stbdSuctionValve.state:
+            self.stbdSuctionValve.close()
+        if self.portDischargeValve.state:
+            self.portDischargeValve.close()
+        if self.stbdDischargeValve.state:
+            self.stbdDischargeValve.close()

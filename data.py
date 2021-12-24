@@ -10,7 +10,8 @@ class CreateData:
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
         self.delta = 0
         self.count = 0
-
+        self.time = 0  # msec
+        self.volume = 0.0  # L
         col = 0
         b = Box(self.box, align="left", width=100, height=200)
         Text(b, text="", color="white")
@@ -18,8 +19,8 @@ class CreateData:
         col += 1
         b = Box(self.box, align="left", width=75, height=200)
         Text(b, text="Port", size=24, color="red2", align="top")
-        Text(b, text="xx.x", size=24, color="white", align="top")
-        Text(b, text="xxx", size=24, color="white", align="top")
+        self.portPercent = Text(b, text="xx.x", size=24, color="white", align="top")
+        self.portLiters = Text(b, text="xxx", size=24, color="white", align="top")
         Text(b, text="", size=24, color="white", align="top")
 
         col += 1
@@ -45,10 +46,10 @@ class CreateData:
         b = Box(self.box, align="left", width=w, height=200)
         b1 = Box(b, align="top", width=w, height=75)
         b2 = Box(b, align="top", width=w, height=100)
-        self.volume = TextBox(b1, text="0")
-        self.time = TextBox(b1, text="0:0")
-        self.volume.text_size = self.time.text_size = 19
-        self.volume.text_color = self.time.text_color = "white"
+        self.volumeStr = TextBox(b1, text="0.0")
+        self.timeStr = TextBox(b1, text="0:00")
+        self.volumeStr.text_size = self.timeStr.text_size = 19
+        self.volumeStr.text_color = self.timeStr.text_color = "white"
         self.portDst = CheckBox(b2, text="Port", width=w)
         self.portSrc = CheckBox(b2, text="Port", width=w)
         self.portSrc.bg = self.portDst.bg = "red4"
@@ -96,8 +97,8 @@ class CreateData:
         col += 1
         b = Box(self.box, align="left", width=75, height=200)
         Text(b, text="Stbd", size=24, color="green")
-        Text(b, text="xx.x", size=24, color="white")
-        Text(b, text="xxx", size=24, color="white")
+        self.stbdPercent = Text(b, text="xx.x", size=24, color="white")
+        self.stbdLiters = Text(b, text="xxx", size=24, color="white")
         Text(b, text="", size=24, color="white")
 
         col += 1
@@ -111,6 +112,31 @@ class CreateData:
         self.portDst.update_command(self.doValve, [self.portDst])
         self.stbdSrc.update_command(self.doValve, [self.stbdSrc])
         self.stbdDst.update_command(self.doValve, [self.stbdDst])
+
+        self.updateData()
+
+    def updateData(self):
+        self.portPercent.value = "{:0.1f}".format(self.pid.fs.getPortPercent())
+        self.portLiters.value = "{:4.1f}".format(self.pid.fs.portLevel)
+        self.stbdPercent.value = "{:0.1f}".format(self.pid.fs.getStbdPercent())
+        self.stbdLiters.value = "{:4.1f}".format(self.pid.fs.stbdLevel)
+
+        self.volume -= self.pid.fs.flowrate / 60 * self.pid.fs.refresh / 1000
+        if self.volume < 0.0:
+            self.volume = 0.0
+        self.volumeStr.value = "{:3.1f}".format(self.volume)
+
+        if self.pid.pump.state:
+            self.time -= self.pid.fs.refresh
+            if self.time < 0:
+                self.time = 0
+            self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
+                                                        int(self.time % (60 * 1000) / 1000))
+
+        if self.volume == 0.0 and self.time == 0 and self.pid.pump.state:
+            self.pid.pump.stop()
+            self.pid.allValvesClose()
+            self.portSrc.value = self.portDst.value = self.stbdSrc.value = self.stbdDst.value = False
 
     def doValve(self, checkbox):
         if checkbox == self.portSrc:
@@ -152,12 +178,12 @@ class CreateData:
         print("In VolUp")
         if self.count == 0:
             return
-        v = int(self.volume.value) + self.delta
-        if v >= 200:
-            v = 200
-            self.volume.value = v
+        self.volume += self.delta
+        if self.volume >= 200.0:
+            self.volume = 200.0
+            self.volumeStr.value = "{:3.1f}".format(self.volume)
             return
-        self.volume.value = v
+        self.volumeStr.value = "{:3.1f}".format(self.volume)
         self.count += 1
         if self.count == 6:
             self.delta *= 10
@@ -177,19 +203,19 @@ class CreateData:
         print("In VolDn")
         if self.count == 0:
             return
-        v = int(self.volume.value) + self.delta
-        if v <= 0:
-            v = 0
-            self.volume.value = v
+        self.volume += self.delta
+        if self.volume <= 0.0:
+            self.volume = 0.0
+            self.volumeStr.value = "{:3.1f}".format(self.volume)
             return
-        self.volume.value = v
+        self.volumeStr.value = "{:3.1f}".format(self.volume)
         self.count += 1
         if self.count == 6:
             self.delta *= 10
         self.volDn.after(500, self.doVolDn)
 
     def timUpStart(self, event):
-        self.delta = 15
+        self.delta = 15 * 1000
         self.count = 1
         self.timUp.after(10, self.doTimUp, [])
 
@@ -199,22 +225,23 @@ class CreateData:
     def doTimUp(self):
         if self.count == 0:
             return
-        tm = self.time.value.split(":")
-        t = int(tm[0]) * 60 + int(tm[1]) + self.delta
-        if t >= 1200:
-            t = 1200
-            self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
+        self.time += self.delta
+        if self.time >= 20 * 60 * 1000:
+            self.time = 20 * 60 * 1000
+            self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
+                                                        int(self.time % (60 * 1000) / 1000))
             return
-        self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
+        self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
+                                                    int(self.time % (60 * 1000) / 1000))
         self.count += 1
         if self.count == 5:
-            self.delta = 1 * 60
+            self.delta = 1 * 60 * 1000
         if self.count == 9:
-            self.delta = 5 * 60
+            self.delta = 5 * 60 * 1000
         self.timUp.after(500, self.doTimUp)
 
     def timDnStart(self, event):
-        self.delta = -15
+        self.delta = -15 * 1000
         self.count = 1
         self.timDn.after(10, self.doTimDn, [])
 
@@ -224,18 +251,18 @@ class CreateData:
     def doTimDn(self):
         if self.count == 0:
             return
-        tm = self.time.value.split(":")
-        t = int(tm[0]) * 60 + int(tm[1]) + self.delta
-        if t <= 0:
-            t = 0
-            self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
+        self.time -= self.delta
+        if self.time <= 0:
+            self.time = 0
+            self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
+                                                        int(self.time % (60 * 1000) / 1000))
             return
-        self.time.value = "{:02d}:{:02d}".format(int(t / 60), t % 60)
+        self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
+                                                    int(self.time % (60 * 1000) / 1000))
 
         self.count += 1
         if self.count == 5:
-            self.delta = -1 * 60
+            self.delta = -1 * 60 * 1000
         if self.count == 9:
-            self.delta = -5 * 60
+            self.delta = -5 * 60 * 1000
         self.timDn.after(500, self.doTimDn)
-

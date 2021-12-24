@@ -17,10 +17,6 @@ class Pump:
                                                  self.x + self.size / 2, self.y,
                                                  color="grey20",
                                                  outline=3, outline_color="gray", )
-        if self.state:
-            self.run()
-        else:
-            self.stop()
 
     def toggle(self):
         if self.state:
@@ -32,12 +28,15 @@ class Pump:
         if self.permissive and not self.alarm:
             self.state = True
             print("pump start")
-        self.updatePID()
+            #  The following is only for testing, needs to be removed
+            self.pid.fs.flowrate = 100
 
     def stop(self):
-        self.state = False
-        print("pump stop")
-        self.updatePID()
+        if self.state:
+            self.state = False
+            print("pump stop")
+            #  The following is only for testing, needs to be removed
+            self.pid.fs.flowrate = 0
 
     def setPermissive(self, perm):
         self.permissive = perm
@@ -45,28 +44,6 @@ class Pump:
             self.stop()
             self.alarm = True
             print("alarm on")
-        self.updatePID()
-
-    def updatePID(self):
-        if self.alarm:  # Alarm
-            if self.pid.flash:
-                color = "yellow"
-            else:
-                color = "grey"
-        elif self.permissive:
-            if self.state:
-                color = "green2"  # Running
-            else:
-                color = "red"  # Permitted to start
-        else:
-            if self.state:
-                color = "purple"  # Error
-                print("Got error state")
-            else:
-                color = "grey"  # Not ready
-
-        self.pid.canvas.tk.itemconfigure(self.shell, outline=color)
-        self.pid.canvas.tk.itemconfigure(self.impeller, outline=color)
 
     def isPumpHit(self, x, y):
         return self.x - self.size <= x <= self.x + self.size and \
