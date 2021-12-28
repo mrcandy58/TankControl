@@ -26,14 +26,14 @@ class Valve:
         if self.partner is not None:
             self.partner.close()
         self.state = True
-        print(self.name, "open")
+        self.fs.io.valveOpen(self.name)
         self.fs.canvas.tk.itemconfigure(self.left, fill="green2")
         self.fs.canvas.tk.itemconfigure(self.right, fill="green2")
         self.fs.pid.pump.setPermissive(self.fs.pid.isPathOpen())
 
     def close(self, doCheck=True):
         self.state = False
-        print(self.name, "close")
+        self.fs.io.valveClose(self.name)
         self.fs.canvas.tk.itemconfigure(self.left, fill="red")
         self.fs.canvas.tk.itemconfigure(self.right, fill="red")
         if doCheck:

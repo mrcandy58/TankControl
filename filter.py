@@ -1,5 +1,5 @@
 class Filter:
-    def __init__(self, fs, x, y, state=True, size=40, offset=20):
+    def __init__(self, fs, x, y, name, state=True, size=40, offset=20):
         self.x = x
         self.y = y
         self.fs = fs

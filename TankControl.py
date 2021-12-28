@@ -2,6 +2,7 @@
 from guizero import App, Drawing
 from PID import CreatePID
 from data import CreateData
+from fsio import fsIO
 
 
 class FuelSystem:
@@ -14,6 +15,8 @@ class FuelSystem:
         self.stbdLevel = 150    # L
 
         self.app = fsApp
+
+        self.io = fsIO(self)
 
         self.canvas = Drawing(self.app, 1024, 325)
         self.canvas.bg = "grey20"

@@ -1,8 +1,9 @@
 class Pump:
-    def __init__(self, fs, x, y, state=False, size=40):
+    def __init__(self, fs, x, y, name, state=False, size=40):
+        self.fs = fs
         self.x = x
         self.y = y
-        self.fs = fs
+        self.name = name
         self.state = state
         self.size = size
         self.permissive = False
@@ -27,14 +28,14 @@ class Pump:
     def run(self):
         if self.permissive and not self.alarm:
             self.state = True
-            print("pump start")
+            self.fs.io.pumpStart(self.name)
             #  The following is only for testing, needs to be removed
             self.fs.flowrate = 100
 
     def stop(self):
         if self.state:
             self.state = False
-            print("pump stop")
+            self.fs.io.pumpStop(self.name)
             #  The following is only for testing, needs to be removed
             self.fs.flowrate = 0
 

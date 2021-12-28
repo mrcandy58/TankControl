@@ -1,7 +1,7 @@
 from valve import Valve
 from pump import Pump
 from filter import Filter
-
+from meter import Meter
 
 class CreatePID:
     def __init__(self, fs):
@@ -30,9 +30,10 @@ class CreatePID:
         self.portDischargeValve.set_partner(self.stbdDischargeValve)
         self.stbdDischargeValve.set_partner(self.portDischargeValve)
 
-        self.filter = Filter(self.fs, 400, 180)
-        self.pump = Pump(self.fs, 600, 180)
-
+        self.filter = Filter(self.fs, 400, 180, "primary filter")
+        self.pump = Pump(self.fs, 500, 180, "xfer pump")
+        self.meter = Meter(self.fs, 600, 180, "fuel flow"
+                           )
         self.portFuel = self.fs.canvas.rectangle(101, 101, 198, 298, outline=False, color="deepskyblue")
         self.stbdFuel = self.fs.canvas.rectangle(801, 101, 898, 298, outline=False, color="deepskyblue")
 
