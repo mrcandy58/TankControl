@@ -1,22 +1,22 @@
 class Pump:
-    def __init__(self, pid, x, y, state=False, size=40):
+    def __init__(self, fs, x, y, state=False, size=40):
         self.x = x
         self.y = y
-        self.pid = pid
+        self.fs = fs
         self.state = state
         self.size = size
         self.permissive = False
         self.alarm = False
 
-        self.shell = self.pid.canvas.oval(self.x - self.size, self.y - self.size,
-                                          self.x + self.size, self.y + self.size,
-                                          color="grey20",
-                                          outline=5, outline_color="gray", )
-        self.impeller = self.pid.canvas.triangle(self.x - self.size / 3, self.y - self.size / 2,
-                                                 self.x - self.size / 3, self.y + self.size / 2,
-                                                 self.x + self.size / 2, self.y,
-                                                 color="grey20",
-                                                 outline=3, outline_color="gray", )
+        self.shell = self.fs.canvas.oval(self.x - self.size, self.y - self.size,
+                                         self.x + self.size, self.y + self.size,
+                                         color="grey20",
+                                         outline=5, outline_color="gray", )
+        self.impeller = self.fs.canvas.triangle(self.x - self.size / 3, self.y - self.size / 2,
+                                                self.x - self.size / 3, self.y + self.size / 2,
+                                                self.x + self.size / 2, self.y,
+                                                color="grey20",
+                                                outline=3, outline_color="gray", )
 
     def toggle(self):
         if self.state:
@@ -29,14 +29,14 @@ class Pump:
             self.state = True
             print("pump start")
             #  The following is only for testing, needs to be removed
-            self.pid.fs.flowrate = 100
+            self.fs.flowrate = 100
 
     def stop(self):
         if self.state:
             self.state = False
             print("pump stop")
             #  The following is only for testing, needs to be removed
-            self.pid.fs.flowrate = 0
+            self.fs.flowrate = 0
 
     def setPermissive(self, perm):
         self.permissive = perm

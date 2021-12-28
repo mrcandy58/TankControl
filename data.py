@@ -2,10 +2,9 @@ from guizero import Box, Text, TextBox, CheckBox, PushButton
 
 
 class CreateData:
-    def __init__(self, app, pid):
-        self.app = app
-        self.pid = pid
-        self.box = Box(self.app, align="top", width=1024, height=200)
+    def __init__(self, fs):
+        self.fs = fs
+        self.box = Box(self.fs.app, align="top", width=1024, height=200)
         self.box.bg = "grey20"
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
         self.delta = 0
@@ -116,53 +115,53 @@ class CreateData:
         self.updateData()
 
     def updateData(self):
-        self.portPercent.value = "{:0.1f}".format(self.pid.fs.getPortPercent())
-        self.portLiters.value = "{:4.1f}".format(self.pid.fs.portLevel)
-        self.stbdPercent.value = "{:0.1f}".format(self.pid.fs.getStbdPercent())
-        self.stbdLiters.value = "{:4.1f}".format(self.pid.fs.stbdLevel)
+        self.portPercent.value = "{:0.1f}".format(self.fs.getPortPercent())
+        self.portLiters.value = "{:4.1f}".format(self.fs.portLevel)
+        self.stbdPercent.value = "{:0.1f}".format(self.fs.getStbdPercent())
+        self.stbdLiters.value = "{:4.1f}".format(self.fs.stbdLevel)
 
-        self.volume -= self.pid.fs.flowrate / 60 * self.pid.fs.refresh / 1000
+        self.volume -= self.fs.flowrate / 60 * self.fs.refresh / 1000
         if self.volume < 0.0:
             self.volume = 0.0
         self.volumeStr.value = "{:3.1f}".format(self.volume)
 
-        if self.pid.pump.state:
-            self.time -= self.pid.fs.refresh
+        if self.fs.pid.pump.state:
+            self.time -= self.fs.refresh
             if self.time < 0:
                 self.time = 0
             self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
                                                         int(self.time % (60 * 1000) / 1000))
 
-        if self.volume == 0.0 and self.time == 0 and self.pid.pump.state:
-            self.pid.pump.stop()
-            self.pid.allValvesClose()
+        if self.volume == 0.0 and self.time == 0 and self.fs.pid.pump.state:
+            self.fs.pid.pump.stop()
+            self.fs.pid.allValvesClose()
             self.portSrc.value = self.portDst.value = self.stbdSrc.value = self.stbdDst.value = False
 
     def doValve(self, checkbox):
         if checkbox == self.portSrc:
             self.stbdSrc.value = 0
             if checkbox.value == 1:
-                self.pid.portSuctionValve.open()
+                self.fs.pid.portSuctionValve.open()
             else:
-                self.pid.portSuctionValve.close()
+                self.fs.pid.portSuctionValve.close()
         elif checkbox == self.portDst:
             self.stbdDst.value = 0
             if checkbox.value == 1:
-                self.pid.portDischargeValve.open()
+                self.fs.pid.portDischargeValve.open()
             else:
-                self.pid.portDischargeValve.close()
+                self.fs.pid.portDischargeValve.close()
         elif checkbox == self.stbdSrc:
             self.portSrc.value = 0
             if checkbox.value == 1:
-                self.pid.stbdSuctionValve.open()
+                self.fs.pid.stbdSuctionValve.open()
             else:
-                self.pid.stbdSuctionValve.close()
+                self.fs.pid.stbdSuctionValve.close()
         else:
             self.portDst.value = 0
             if checkbox.value == 1:
-                self.pid.stbdDischargeValve.open()
+                self.fs.pid.stbdDischargeValve.open()
             else:
-                self.pid.stbdDischargeValve.close()
+                self.fs.pid.stbdDischargeValve.close()
 
     def volUpStart(self, event):
         print("Vol up start")
@@ -251,7 +250,7 @@ class CreateData:
     def doTimDn(self):
         if self.count == 0:
             return
-        self.time -= self.delta
+        self.time += self.delta
         if self.time <= 0:
             self.time = 0
             self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),

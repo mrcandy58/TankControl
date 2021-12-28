@@ -1,19 +1,19 @@
 class Valve:
-    def __init__(self, pid, x, y, name, state=False, size=20):
+    def __init__(self, fs, x, y, name, state=False, size=20):
         self.x = x
         self.y = y
-        self.pid = pid
+        self.fs = fs
         self.state = state
         self.size = size
         self.partner = None
         self.name = name
 
-        self.left = self.pid.canvas.triangle(self.x - self.size, self.y - self.size,
-                                             self.x - self.size, self.y + self.size, self.x, self.y,
+        self.left = self.fs.canvas.triangle(self.x - self.size, self.y - self.size,
+                                            self.x - self.size, self.y + self.size, self.x, self.y,
+                                            outline=2, outline_color="gray")
+        self.right = self.fs.canvas.triangle(self.x + self.size, self.y - self.size,
+                                             self.x + self.size, self.y + self.size, self.x, self.y,
                                              outline=2, outline_color="gray")
-        self.right = self.pid.canvas.triangle(self.x + self.size, self.y - self.size,
-                                              self.x + self.size, self.y + self.size, self.x, self.y,
-                                              outline=2, outline_color="gray")
         if self.state:
             self.open()
         else:
@@ -27,14 +27,14 @@ class Valve:
             self.partner.close()
         self.state = True
         print(self.name, "open")
-        self.pid.canvas.tk.itemconfigure(self.left, fill="green2")
-        self.pid.canvas.tk.itemconfigure(self.right, fill="green2")
-        self.pid.pump.setPermissive(self.pid.isPathOpen())
+        self.fs.canvas.tk.itemconfigure(self.left, fill="green2")
+        self.fs.canvas.tk.itemconfigure(self.right, fill="green2")
+        self.fs.pid.pump.setPermissive(self.fs.pid.isPathOpen())
 
     def close(self, doCheck=True):
         self.state = False
         print(self.name, "close")
-        self.pid.canvas.tk.itemconfigure(self.left, fill="red")
-        self.pid.canvas.tk.itemconfigure(self.right, fill="red")
+        self.fs.canvas.tk.itemconfigure(self.left, fill="red")
+        self.fs.canvas.tk.itemconfigure(self.right, fill="red")
         if doCheck:
-            self.pid.pump.setPermissive(self.pid.isPathOpen())
+            self.fs.pid.pump.setPermissive(self.fs.pid.isPathOpen())
