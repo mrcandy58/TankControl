@@ -27,7 +27,7 @@ class fsIO:
                 return False
 
             if p["bus"] == "i2c":
-                io.system("i2cset -y {:d} 0x{:02x} 0x{:02x} 0xFF".format(self.bus, self.addr, p["pin"]))
+                os.system("i2cset -y {:d} 0x{:02x} 0x{:02x} 0xFF".format(self.bus, self.addr, p["pin"]))
                 print("i2c pin {:d} ON".format(p["pin"]))
             elif p["bus"] == "gp":
                 print("gpio pin {:s} ON".format(p["pin"]))
@@ -45,7 +45,7 @@ class fsIO:
                 return False
 
             if p["bus"] == "i2c":
-                io.system("i2cset -y {:d} 0x{:02x} 0x{:02x} 0x00".format(self.bus, self.addr, p["pin"]))
+                os.system("i2cset -y {:d} 0x{:02x} 0x{:02x} 0x00".format(self.bus, self.addr, p["pin"]))
                 print("i2c pin {:d} OFF".format(p["pin"]))
             elif p["bus"] == "gp":
                 print("gpio pin {:s} OFF".format(p["pin"]))
