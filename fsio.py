@@ -1,13 +1,18 @@
+import os
+
+
 class fsIO:
     def __init__(self, fs):
         self.fs = fs
+        self.bus = 1        # I2C bus
+        self.addr = 0x10    # Relay board I2C address
 
         self.pins = {
-            "port suction":     {"direction": "output", "bus": "i2c", "pin": "1"},
-            "stbd suction":     {"direction": "output", "bus": "i2c", "pin": "2"},
-            "port discharge":   {"direction": "output", "bus": "i2c", "pin": "3"},
-            "stbd discharge":   {"direction": "output", "bus": "i2c", "pin": "4"},
-            "xfer pump":        {"direction": "output", "bus": "gp",  "pin": "11"},
+            "port suction":     {"direction": "output", "bus": "i2c", "pin": 1},
+            "stbd suction":     {"direction": "output", "bus": "i2c", "pin": 2},
+            "port discharge":   {"direction": "output", "bus": "i2c", "pin": 3},
+            "stbd discharge":   {"direction": "output", "bus": "i2c", "pin": 4},
+            "xfer pump":        {"direction": "output", "bus": "gp",  "pin": "IO26"},
 
             "primary filter":   {"direction": "input", "bus": "gp", "pin": "12"},
 
@@ -22,7 +27,8 @@ class fsIO:
                 return False
 
             if p["bus"] == "i2c":
-                print("i2c pin {:s} ON".format(p["pin"]))
+                os.system("i2cset {:d} {:02x} {:02x} 0xFF".format(self.bus, self.addr, p["pin"]))
+                print("i2c pin {:d} ON".format(p["pin"]))
             elif p["bus"] == "gp":
                 print("gpio pin {:s} ON".format(p["pin"]))
             else:
@@ -39,7 +45,8 @@ class fsIO:
                 return False
 
             if p["bus"] == "i2c":
-                print("i2c pin {:s} OFF".format(p["pin"]))
+                os.system("i2cset {:d} {:02x} {:02x} 0x00".format(self.bus, self.addr, p["pin"]))
+                print("i2c pin {:d} OFF".format(p["pin"]))
             elif p["bus"] == "gp":
                 print("gpio pin {:s} OFF".format(p["pin"]))
             else:

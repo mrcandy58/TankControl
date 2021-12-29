@@ -7,9 +7,6 @@ from fsio import fsIO
 
 class FuelSystem:
     def __init__(self, fsApp):
-        self.bus = 1  # I2C bus
-        self.addr = 0x10    # Relay board I2C address
-
         self.refresh = 50  # msec
         self.tankSize = 200  # L
 
