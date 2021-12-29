@@ -7,12 +7,15 @@ from fsio import fsIO
 
 class FuelSystem:
     def __init__(self, fsApp):
-        self.refresh = 50       # msec
-        self.tankSize = 200     # L
+        self.bus = 1  # I2C bus
+        self.addr = 0x10    # Relay board I2C address
 
-        self.flowrate = 0       # L/m
-        self.portLevel = 50     # L
-        self.stbdLevel = 150    # L
+        self.refresh = 50  # msec
+        self.tankSize = 200  # L
+
+        self.flowrate = 0  # L/m
+        self.portLevel = 50  # L
+        self.stbdLevel = 150  # L
 
         self.app = fsApp
 
@@ -26,11 +29,17 @@ class FuelSystem:
 
         self.data = CreateData(self)
 
+#        self.file_read = io.open("/dev/i2c-" + str(self.bus), "rb", buffering=0)
+#        self.file_write = io.open("/dev/i2c-" + str(self.bus), "wb", buffering=0)
+#        I2C_SLAVE = 0x703
+#        fcntl.ioctl(self.file_read, I2C_SLAVE, self.addr)
+#        fcntl.ioctl(self.file_write, I2C_SLAVE, self.addr)
+
     def getPortPercent(self):
-        return self.portLevel/self.tankSize*100
+        return self.portLevel / self.tankSize * 100
 
     def getStbdPercent(self):
-        return self.stbdLevel/self.tankSize*100
+        return self.stbdLevel / self.tankSize * 100
 
 
 if __name__ == '__main__':
