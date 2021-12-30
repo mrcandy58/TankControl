@@ -1,11 +1,12 @@
-import os
+import pigpio
 
 
 class fsIO:
     def __init__(self, fs):
         self.fs = fs
-        self.bus = 1        # I2C bus
-        self.addr = 0x10    # Relay board I2C address
+        self.host = "192.168.1.70"  # host address
+        self.busNumber = 1          # I2C bus
+        self.addr = 0x10            # Relay board I2C address
 
         self.pins = {
             "port suction":     {"direction": "output", "bus": "i2c", "pin": 1},
@@ -19,6 +20,24 @@ class fsIO:
             "fuel flow":        {"direction": "freq", "bus": "gp", "pin": "13"}
         }
 
+        self.pi = pigpio.pi(self.host)
+        if not self.pi.connected:
+            print("Unable to open connection to GPIO daemon on {:s}".format(self.host))
+            self.pi = None
+            self.bus = None
+        else:
+            self.bus = self.pi.i2c_open(self.busNumber, self.addr)
+
+            for name, value in {key: value for key, value in self.pins.items() if value["bus"] == "gp"}.items():
+                if value["direction"] == "output":
+                    print("OUT", name)
+                elif value["direction"] == "input":
+                    print(" IN", name)
+                elif value["direction"] == "freq":
+                    print("  F", name)
+                else:
+                    print("GPIO pin with unknown direction", p)
+
     def ioOn(self, name):
         if name in self.pins:
             p = self.pins[name]
@@ -27,7 +46,7 @@ class fsIO:
                 return False
 
             if p["bus"] == "i2c":
-                os.system("i2cset -y {:d} 0x{:02x} 0x{:02x} 0xFF".format(self.bus, self.addr, p["pin"]))
+                self.pi.i2c_write_byte_data(self.bus, p["pin"], 0xFF)
                 print("i2c pin {:d} ON".format(p["pin"]))
             elif p["bus"] == "gp":
                 print("gpio pin {:s} ON".format(p["pin"]))
@@ -45,7 +64,7 @@ class fsIO:
                 return False
 
             if p["bus"] == "i2c":
-                os.system("i2cset -y {:d} 0x{:02x} 0x{:02x} 0x00".format(self.bus, self.addr, p["pin"]))
+                self.pi.i2c_write_byte_data(self.bus, p["pin"], 0x00)
                 print("i2c pin {:d} OFF".format(p["pin"]))
             elif p["bus"] == "gp":
                 print("gpio pin {:s} OFF".format(p["pin"]))
