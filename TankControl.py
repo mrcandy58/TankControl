@@ -10,7 +10,6 @@ class FuelSystem:
         self.refresh = 250  # msec
         self.tankSize = 200  # L
 
-        self.flowrate = 0  # L/m
         self.portLevel = 50  # L
         self.stbdLevel = 150  # L
 
@@ -26,12 +25,6 @@ class FuelSystem:
 
         self.data = CreateData(self)
 
-#        self.file_read = io.open("/dev/i2c-" + str(self.bus), "rb", buffering=0)
-#        self.file_write = io.open("/dev/i2c-" + str(self.bus), "wb", buffering=0)
-#        I2C_SLAVE = 0x703
-#        fcntl.ioctl(self.file_read, I2C_SLAVE, self.addr)
-#        fcntl.ioctl(self.file_write, I2C_SLAVE, self.addr)
-
     def getPortPercent(self):
         return self.portLevel / self.tankSize * 100
 
@@ -43,3 +36,15 @@ if __name__ == '__main__':
     app = App(title='Fuel Tank Control', width=1024, height=600)
     fs = FuelSystem(app)
     app.display()
+
+# TODO
+# - disable volume/time up/dn buttons when pump is running
+# - check for hh/ll tank limits and shutdown with alarm
+# - check for filter alarm and shutdown
+# - add stop button
+# - make valve's hit targets and turn on/off
+# - test with PWM output to simulate flow meter, verify flowrate and volumes are correct
+# - publish/lookup host name??
+# - start pigpiod at Pi boot
+# - Pi is running Python 3.7 or 3.8, not 3.10?
+

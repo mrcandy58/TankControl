@@ -9,12 +9,15 @@ class CreateData:
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
         self.delta = 0
         self.count = 0
-        self.time = 0  # msec to run pump
-        self.targetVol = 0.0  # L to xfer
-        self.volume = 0.0   # Volume since start
-        self.deltaV = 0.0   # Volume since last check
+        self.time = 0           # msec to run pump
+        self.targetVol = 0.0    # L to xfer
+        self.volume = 0.0       # Volume xfer since start
+        self.tallyP = 0.0       # Last tally on previous check
         self.flowrate = 0.0     # Instantaneous flowrate
-        self.K = 11.0   # Flowmeter factor to change L/m to frequency ( f = K * Q )
+        self.K = 1 / 660.0      # Flowmeter factor L/pulse
+
+        # TODO - remove, only for testing
+        self.K *= 10.0
 
         col = 0
         b = Box(self.box, align="left", width=100, height=200)
@@ -120,25 +123,31 @@ class CreateData:
         self.updateData()
 
     def updateData(self):
-        self.flowrate = self.fs.io.counter.tally() / (self.fs.refresh / 1000) / self.K
+        t = self.fs.io.counter.tally()
+        deltaT = t - self.tallyP
+        self.tallyP = t
+
+        self.flowrate = deltaT * self.K / (self.fs.refresh / 1000) * 60.0  # L/m
         self.fs.canvas.tk.itemconfigure(self.fs.pid.meter.flowRate, text="{:3.1f} L/m".format(self.flowrate))
 
         if self.fs.pid.pump.state:
-            v = self.fs.io.counter.tally() / self.K / 60.0
+            v = t * self.K
         else:
             self.fs.io.counter.reset_tally()
-            v = 0
-        self.deltaV = v - self.volume
+            self.targetVol -= self.volume
+            self.volume = v = 0
+
+        deltaV = v - self.volume
         self.volume = v
 
         # TODO Remove following if/elif to update tank levels - for testing only
         # TODO Update tank level and percent from N2k
         if self.fs.pid.portSuctionValve.state and self.fs.pid.stbdDischargeValve.state and self.fs.pid.pump.state:
-            self.fs.portLevel -= self.deltaV
-            self.fs.stbdLevel += self.deltaV
-        elif self.fs.pid.stbdSuctionValve and self.fs.pid.portDischargeValve.state and self.fs.pid.pump.state:
-            self.fs.portLevel += self.deltaV
-            self.fs.stbdLevel -= self.deltaV
+            self.fs.portLevel -= deltaV
+            self.fs.stbdLevel += deltaV
+        elif self.fs.pid.stbdSuctionValve.state and self.fs.pid.portDischargeValve.state and self.fs.pid.pump.state:
+            self.fs.portLevel += deltaV
+            self.fs.stbdLevel -= deltaV
 
         self.portPercent.value = "{:0.1f}".format(self.fs.getPortPercent())
         self.portLiters.value = "{:4.1f}".format(self.fs.portLevel)
