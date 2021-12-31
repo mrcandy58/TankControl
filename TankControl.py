@@ -30,8 +30,6 @@ if __name__ == '__main__':
     app.display()
 
 # TODO
-# - add stop button
 # - publish/lookup host name??
-# - start pigpiod at Pi boot
 # - Pi is running Python 3.7 or 3.8, not 3.10?
 

@@ -24,7 +24,9 @@ class CreateData:
         Text(b, text="Port", size=24, color="red2", align="top")
         self.portPercent = Text(b, text="xx.x", size=24, color="white", align="top")
         self.portLiters = Text(b, text="xxx", size=24, color="white", align="top")
-        Text(b, text="", size=24, color="white", align="top")
+        self.ESD = PushButton(b, command=self.esd, text="ESD", pady=2)
+        self.ESD.text_size = 20
+        self.ESD.text_color = "red"
 
         col += 1
         b = Box(self.box, align="left", width=25, height=200)
@@ -50,7 +52,9 @@ class CreateData:
         b1 = Box(b, align="top", width=w, height=75)
         b2 = Box(b, align="top", width=w, height=100)
         self.volumeStr = TextBox(b1, text="0.0")
+        self.volumeStr.when_key_pressed = self.volKey
         self.timeStr = TextBox(b1, text="0:00")
+        self.timeStr.when_key_pressed = self.timeKey
         self.volumeStr.text_size = self.timeStr.text_size = 19
         self.volumeStr.text_color = self.timeStr.text_color = "white"
         self.portDst = CheckBox(b2, text="Port", width=w)
@@ -121,6 +125,34 @@ class CreateData:
         self.stbdDst.update_command(self.doValve, [self.stbdDst])
 
         self.updateData()
+
+    def volKey(self, event):
+        if event.tk_event.keysym == "Return":
+            v = self.volumeStr.value
+            print("got", v)
+            try:
+                self.togo = float(v)
+            except ValueError:
+                v = 0.0
+            self.volumeStr.value = "{:3.1f}".format(self.togo)
+
+    def timeKey(self, event):
+        if event.tk_event.keysym == "Return":
+            t = self.timeStr.value
+            print("got", t)
+            try:
+                t1, t2 = t.split(":")
+                msec = (int(t1) * 60 + int(t2)) * 1000
+            except ValueError:
+                msec = 0
+            self.time = msec
+            self.timeStr.value = "{:2d}:{:02d}".format(int(self.time / (60 * 1000)),
+                                                        int(self.time % (60 * 1000) / 1000))
+
+    def esd(self):
+        print("ESD")
+        self.fs.pid.pump.stop()
+        self.fs.pid.allValvesClose()
 
     def updateData(self):
         # Check filter state
