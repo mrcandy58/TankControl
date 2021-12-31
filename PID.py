@@ -2,15 +2,13 @@ from valve import Valve
 from pump import Pump
 from filter import Filter
 from meter import Meter
+from tank import Tank
 
 
 class CreatePID:
     def __init__(self, fs):
         self.fs = fs
         self.flash = False
-
-        self.portTank = self.fs.canvas.rectangle(100, 100, 199, 299, outline=True, outline_color="grey")
-        self.stbdTank = self.fs.canvas.rectangle(800, 100, 899, 299, outline=True, outline_color="gray")
 
         self.returnLine = self.fs.canvas.line(125, 75, 875, 75, color="gray", width=3)
         self.portReturn = self.fs.canvas.line(125, 75, 125, 115, color="gray", width=3)
@@ -30,6 +28,11 @@ class CreatePID:
         self.stbdDischargeValve = Valve(self.fs, 750, 75, "stbd discharge")
         self.portDischargeValve.set_partner(self.stbdDischargeValve)
         self.stbdDischargeValve.set_partner(self.portDischargeValve)
+
+        self.portTank = Tank(self.fs, "port", 100, 100, 99, 199,
+                             self.portSuctionValve, self.portDischargeValve)
+        self.stbdTank = Tank(self.fs, "stbd", 800, 100, 99, 199,
+                             self.stbdSuctionValve, self.stbdDischargeValve)
 
         self.filter = Filter(self.fs, 400, 180, "primary filter")
         self.pump = Pump(self.fs, 500, 180, "xfer pump")
@@ -57,18 +60,30 @@ class CreatePID:
                 self.filter.alarm = False
                 self.updatePID()
 
+        if self.portTank.isTankHit(event.x, event.y):
+            if self.portTank.alarm:
+                self.portTank.alarm = False
+                self.updatePID()
+
+        if self.stbdTank.isTankHit(event.x, event.y):
+            if self.stbdTank.alarm:
+                self.stbdTank.alarm = False
+                self.updatePID()
+
     def isPathOpen(self):
-        if (self.portSuctionValve.state or self.stbdSuctionValve.state) and\
+        if (self.portSuctionValve.state or self.stbdSuctionValve.state) and \
                 (self.portDischargeValve.state or self.stbdDischargeValve.state):
             return True
         else:
             return False
 
     def updatePID(self):
+        # Update all the data
         if self.fs.data is not None:
             self.fs.data.updateData()
 
-        if self.filter.alarm:   # Alarm
+        # Check for filter alarm
+        if self.filter.alarm:
             if self.flash:
                 color = "yellow"
             else:
@@ -81,12 +96,13 @@ class CreatePID:
         self.fs.canvas.tk.itemconfigure(self.filter.shell1, outline=color)
         self.fs.canvas.tk.itemconfigure(self.filter.shell2, outline=color)
 
-        if self.pump.alarm:  # Alarm
+        # Check for pump alarm
+        if self.pump.alarm:
             if self.flash:
                 color = "yellow"
             else:
                 color = "grey"
-        elif self.pump.permissive:
+        elif self.pump.permissive and self.filter.permissive and self.portTank.permissive and self.stbdTank.permissive:
             if self.pump.state:
                 color = "green2"  # Running
             else:
@@ -101,16 +117,36 @@ class CreatePID:
         self.fs.canvas.tk.itemconfigure(self.pump.shell, outline=color)
         self.fs.canvas.tk.itemconfigure(self.pump.impeller, outline=color)
 
-        x0, y0, x1, y1 = self.fs.canvas.tk.coords(self.portTank)
+        # Check for tank alarm
+        if self.portTank.alarm:
+            if self.flash:
+                color = "yellow"
+            else:
+                color = "grey"
+        else:
+            color = "grey"
+        self.fs.canvas.tk.itemconfigure(self.portTank.shell, outline=color)
+
+        if self.stbdTank.alarm:
+            if self.flash:
+                color = "yellow"
+            else:
+                color = "grey"
+        else:
+            color = "grey"
+        self.fs.canvas.tk.itemconfigure(self.stbdTank.shell, outline=color)
+
+        # Update contents of the tanks
+        x0, y0, x1, y1 = self.fs.canvas.tk.coords(self.portTank.shell)
         x0 += 1
         y0 += 1
-        y0 = y0 + ((y1 - y0) * (100 - self.fs.getPortPercent()) / 100)
+        y0 = y0 + ((y1 - y0) * (100 - self.fs.pid.portTank.getPercent()) / 100)
         self.fs.canvas.tk.coords(self.portFuel, x0, y0, x1, y1)
 
-        x0, y0, x1, y1 = self.fs.canvas.tk.coords(self.stbdTank)
+        x0, y0, x1, y1 = self.fs.canvas.tk.coords(self.stbdTank.shell)
         x0 += 1
         y0 += 1
-        y0 = y0 + ((y1 - y0) * (100 - self.fs.getStbdPercent()) / 100)
+        y0 = y0 + ((y1 - y0) * (100 - self.fs.pid.stbdTank.getPercent()) / 100)
         self.fs.canvas.tk.coords(self.stbdFuel, x0, y0, x1, y1)
 
     def allValvesClose(self):

@@ -8,10 +8,6 @@ from fsio import fsIO
 class FuelSystem:
     def __init__(self, fsApp):
         self.refresh = 250  # msec
-        self.tankSize = 200  # L
-
-        self.portLevel = 50  # L
-        self.stbdLevel = 150  # L
 
         self.app = fsApp
 
@@ -21,15 +17,11 @@ class FuelSystem:
         self.canvas.bg = "grey20"
 
         self.pid = CreatePID(self)
+        self.pid.portTank.setLevel(100.0)     # Liters
+        self.pid.stbdTank.setLevel(180.0)   # Liters
         self.canvas.repeat(self.refresh, self.pid.flasher)
 
         self.data = CreateData(self)
-
-    def getPortPercent(self):
-        return self.portLevel / self.tankSize * 100
-
-    def getStbdPercent(self):
-        return self.stbdLevel / self.tankSize * 100
 
 
 if __name__ == '__main__':
@@ -39,7 +31,6 @@ if __name__ == '__main__':
 
 # TODO
 # - check for hh/ll tank limits and shutdown with alarm
-# - check for filter alarm and shutdown
 # - add stop button
 # - make valve's hit targets and turn on/off
 # - publish/lookup host name??

@@ -141,17 +141,21 @@ class CreateData:
         # TODO Remove following if/elif to update tank levels - for testing only
         # TODO Update tank level and percent from N2k
         if self.fs.pid.portSuctionValve.state and self.fs.pid.stbdDischargeValve.state and self.fs.pid.pump.state:
-            self.fs.portLevel -= deltaV
-            self.fs.stbdLevel += deltaV
+            self.fs.pid.portTank.incLevel(-deltaV)
+            self.fs.pid.stbdTank.incLevel(deltaV)
         elif self.fs.pid.stbdSuctionValve.state and self.fs.pid.portDischargeValve.state and self.fs.pid.pump.state:
-            self.fs.portLevel += deltaV
-            self.fs.stbdLevel -= deltaV
+            self.fs.pid.portTank.incLevel(deltaV)
+            self.fs.pid.stbdTank.incLevel(-deltaV)
 
         # Update tank levels
-        self.portPercent.value = "{:0.1f}".format(self.fs.getPortPercent())
-        self.portLiters.value = "{:4.1f}".format(self.fs.portLevel)
-        self.stbdPercent.value = "{:0.1f}".format(self.fs.getStbdPercent())
-        self.stbdLiters.value = "{:4.1f}".format(self.fs.stbdLevel)
+        self.portPercent.value = "{:0.1f}".format(self.fs.pid.portTank.getPercent())
+        self.portLiters.value = "{:4.1f}".format(self.fs.pid.portTank.getLevel())
+        self.stbdPercent.value = "{:0.1f}".format(self.fs.pid.stbdTank.getPercent())
+        self.stbdLiters.value = "{:4.1f}".format(self.fs.pid.stbdTank.getLevel())
+
+        # Check tank state
+        self.fs.pid.portTank.checkLevel()
+        self.fs.pid.stbdTank.checkLevel()
 
         # Update fuel volume and time remaining in xfer
         if self.fs.pid.pump.state:

@@ -26,7 +26,9 @@ class Pump:
             self.run()
 
     def run(self):
-        if not self.state and self.permissive and not self.alarm and self.fs.pid.filter.permissive:
+        if not self.state and not self.alarm and self.permissive \
+                and self.fs.pid.filter.permissive \
+                and self.fs.pid.stbdTank.permissive and self.fs.pid.portTank.permissive:
             self.state = True
             self.fs.io.pumpStart(self.name)
 
