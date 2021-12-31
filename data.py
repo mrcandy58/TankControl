@@ -10,14 +10,10 @@ class CreateData:
         self.delta = 0
         self.count = 0
         self.time = 0           # msec to run pump
-        self.targetVol = 0.0    # L to xfer
-        self.volume = 0.0       # Volume xfer since start
+        self.togo = 0.0         # L to xfer
         self.tallyP = 0.0       # Last tally on previous check
         self.flowrate = 0.0     # Instantaneous flowrate
         self.K = 1 / 660.0      # Flowmeter factor L/pulse
-
-        # TODO - remove, only for testing
-        self.K *= 10.0
 
         col = 0
         b = Box(self.box, align="left", width=100, height=200)
@@ -123,22 +119,24 @@ class CreateData:
         self.updateData()
 
     def updateData(self):
+        # Check filter state
+        pin = self.fs.io.pins["primary filter"]
+        if self.fs.io.pi.read(pin["pin"]):
+            self.fs.pid.filter.plugged()
+        else:
+            self.fs.pid.filter.clear()
+
+        # Calculate number of flow meter pulses
         t = self.fs.io.counter.tally()
         deltaT = t - self.tallyP
         self.tallyP = t
 
+        # Convert pulses in last refresh period to flow rate
         self.flowrate = deltaT * self.K / (self.fs.refresh / 1000) * 60.0  # L/m
         self.fs.canvas.tk.itemconfigure(self.fs.pid.meter.flowRate, text="{:3.1f} L/m".format(self.flowrate))
 
-        if self.fs.pid.pump.state:
-            v = t * self.K
-        else:
-            self.fs.io.counter.reset_tally()
-            self.targetVol -= self.volume
-            self.volume = v = 0
-
-        deltaV = v - self.volume
-        self.volume = v
+        # Calculate volume from pulses
+        deltaV = deltaT * self.K
 
         # TODO Remove following if/elif to update tank levels - for testing only
         # TODO Update tank level and percent from N2k
@@ -149,31 +147,30 @@ class CreateData:
             self.fs.portLevel += deltaV
             self.fs.stbdLevel -= deltaV
 
+        # Update tank levels
         self.portPercent.value = "{:0.1f}".format(self.fs.getPortPercent())
         self.portLiters.value = "{:4.1f}".format(self.fs.portLevel)
         self.stbdPercent.value = "{:0.1f}".format(self.fs.getStbdPercent())
         self.stbdLiters.value = "{:4.1f}".format(self.fs.stbdLevel)
 
-        togo = self.targetVol - self.volume
-        if togo < 0.0:
-            togo = 0.0
-        self.volumeStr.value = "{:3.1f}".format(togo)
-
+        # Update fuel volume and time remaining in xfer
         if self.fs.pid.pump.state:
+            self.togo -= deltaV
+            if self.togo < 0.0:
+                self.togo = 0.0
+            self.volumeStr.value = "{:3.1f}".format(self.togo)
+
             self.time -= self.fs.refresh
             if self.time < 0:
                 self.time = 0
             self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
                                                         int(self.time % (60 * 1000) / 1000))
 
-        if togo == 0.0 and self.time == 0 and self.fs.pid.pump.state:
+        # Check if xfer is complete
+        if self.togo == 0.0 and self.time == 0 and self.fs.pid.pump.state:
             self.fs.pid.pump.stop()
             self.fs.pid.allValvesClose()
             self.portSrc.value = self.portDst.value = self.stbdSrc.value = self.stbdDst.value = False
-            self.targetVol = 0.0
-            self.time = 0
-            self.fs.io.counter.reset_tally()
-            print("Xfer complete", self.fs.io.counter.tally())
 
     def doValve(self, checkbox):
         if checkbox == self.portSrc:
@@ -202,50 +199,44 @@ class CreateData:
                 self.fs.pid.stbdDischargeValve.close()
 
     def volUpStart(self, event):
-        print("Vol up start")
         self.delta = 1
         self.count = 1
         self.volUp.after(10, self.doVolUp, [])
 
     def volUpEnd(self, event):
-        print("Vol up end")
         self.delta = self.count = 0
 
     def doVolUp(self):
-        print("In VolUp")
         if self.count == 0:
             return
-        self.targetVol += self.delta
-        if self.targetVol >= 200.0:
-            self.targetVol = 200.0
-            self.volumeStr.value = "{:3.1f}".format(self.targetVol)
+        self.togo += self.delta
+        if self.togo >= 200.0:
+            self.togo = 200.0
+            self.volumeStr.value = "{:3.1f}".format(self.togo)
             return
-        self.volumeStr.value = "{:3.1f}".format(self.targetVol)
+        self.volumeStr.value = "{:3.1f}".format(self.togo)
         self.count += 1
         if self.count == 6:
             self.delta *= 10
         self.volUp.after(500, self.doVolUp)
 
     def volDnStart(self, event):
-        print("Vol dn start")
         self.delta = -1
         self.count = 1
         self.volDn.after(10, self.doVolDn, [])
 
     def volDnEnd(self, event):
-        print("Vol dn end")
         self.delta = self.count = 0
 
     def doVolDn(self):
-        print("In VolDn")
         if self.count == 0:
             return
-        self.targetVol += self.delta
-        if self.targetVol <= 0.0:
-            self.targetVol = 0.0
-            self.volumeStr.value = "{:3.1f}".format(self.targetVol)
+        self.togo += self.delta
+        if self.togo <= 0.0:
+            self.togo = 0.0
+            self.volumeStr.value = "{:3.1f}".format(self.togo)
             return
-        self.volumeStr.value = "{:3.1f}".format(self.targetVol)
+        self.volumeStr.value = "{:3.1f}".format(self.togo)
         self.count += 1
         if self.count == 6:
             self.delta *= 10

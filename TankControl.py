@@ -38,12 +38,10 @@ if __name__ == '__main__':
     app.display()
 
 # TODO
-# - disable volume/time up/dn buttons when pump is running
 # - check for hh/ll tank limits and shutdown with alarm
 # - check for filter alarm and shutdown
 # - add stop button
 # - make valve's hit targets and turn on/off
-# - test with PWM output to simulate flow meter, verify flowrate and volumes are correct
 # - publish/lookup host name??
 # - start pigpiod at Pi boot
 # - Pi is running Python 3.7 or 3.8, not 3.10?

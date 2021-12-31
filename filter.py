@@ -6,6 +6,8 @@ class Filter:
         self.state = state
         self.size = size
         self.offset = offset
+        self.permissive = False
+        self.alarm = False
 
         self.shell1 = self.fs.canvas.oval(self.x - self.size / 2, self.y - self.size + self.offset,
                                           self.x + self.size / 2, self.y + self.size + self.offset,
@@ -15,17 +17,19 @@ class Filter:
                                                self.x + self.size / 2, self.y - self.size + self.offset,
                                                color="grey20",
                                                outline=5, outline_color="gray")
-        if self.state:
-            self.clear()
-        else:
-            self.plugged()
 
     def clear(self):
         self.state = True
-        self.fs.canvas.tk.itemconfigure(self.shell1, outline="green2")
-        self.fs.canvas.tk.itemconfigure(self.shell2, outline="green2")
+        if not self.alarm:
+            self.permissive = True
 
     def plugged(self):
         self.state = False
-        self.fs.canvas.tk.itemconfigure(self.shell1, outline="red")
-        self.fs.canvas.tk.itemconfigure(self.shell2, outline="red")
+        if self.fs.pid.pump.state:
+            self.alarm = True
+            self.fs.pid.pump.stop()
+        self.permissive = False
+
+    def isFilterHit(self, x, y):
+        return self.x - self.size <= x <= self.x + self.size and \
+               self.y - self.size <= y <= self.y + self.size

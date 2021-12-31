@@ -48,10 +48,14 @@ class CreatePID:
         if self.pump.isPumpHit(event.x, event.y):
             if self.pump.alarm:
                 self.pump.alarm = False
-                print("alarm off")
                 self.updatePID()
             else:
                 self.pump.toggle()
+
+        if self.filter.isFilterHit(event.x, event.y):
+            if self.filter.alarm:
+                self.filter.alarm = False
+                self.updatePID()
 
     def isPathOpen(self):
         if (self.portSuctionValve.state or self.stbdSuctionValve.state) and\
@@ -63,6 +67,19 @@ class CreatePID:
     def updatePID(self):
         if self.fs.data is not None:
             self.fs.data.updateData()
+
+        if self.filter.alarm:   # Alarm
+            if self.flash:
+                color = "yellow"
+            else:
+                color = "grey"
+        elif self.filter.state:
+            color = "green2"
+        else:
+            color = "red"
+
+        self.fs.canvas.tk.itemconfigure(self.filter.shell1, outline=color)
+        self.fs.canvas.tk.itemconfigure(self.filter.shell2, outline=color)
 
         if self.pump.alarm:  # Alarm
             if self.flash:

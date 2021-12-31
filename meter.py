@@ -13,5 +13,5 @@ class Meter:
                             outline=3, outline_color="gray")
         self.fs.canvas.oval(self.x - 6, self.y + 25, self.x + 6, self.y, color="gray20",
                             outline=3, outline_color="gray")
-        self.flowRate = self.fs.canvas.text(self.x + 30, self.y + 10, "test", color="white")
+        self.flowRate = self.fs.canvas.text(self.x + 30, self.y + 10, "test", color="white", size=20)
 

@@ -26,7 +26,7 @@ class Pump:
             self.run()
 
     def run(self):
-        if not self.state and self.permissive and not self.alarm:
+        if not self.state and self.permissive and not self.alarm and self.fs.pid.filter.permissive:
             self.state = True
             self.fs.io.pumpStart(self.name)
 
@@ -40,7 +40,6 @@ class Pump:
         if not perm and self.state:
             self.stop()
             self.alarm = True
-            print("alarm on")
 
     def isPumpHit(self, x, y):
         return self.x - self.size <= x <= self.x + self.size and \

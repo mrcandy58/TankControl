@@ -15,9 +15,12 @@ class fsIO:
             "stbd discharge":   {"direction": "output", "bus": "i2c", "pin": 4},
             "xfer pump":        {"direction": "output", "bus": "gp",  "pin": 26},
 
-            "primary filter":   {"direction": "input", "bus": "gp", "pin": 27},
+            "primary filter":   {"direction": "input", "bus": "gp", "pin": 21},
 
-            "fuel flow":        {"direction": "freq", "bus": "gp", "pin": 4}
+            "fuel flow":        {"direction": "freq", "bus": "gp", "pin": 4},
+
+            "meter test":       {"direction": "pwm", "bus": "gp", "pin": 27, "freq": 1100}
+
         }
 
         self.pi = pigpio.pi(self.host)
@@ -40,8 +43,12 @@ class fsIO:
                     self.pi.set_mode(pin, pigpio.INPUT)
                     self.counter = self.pi.callback(pin)
                     self.counter.reset_tally()
+                elif value["direction"] == "pwm":
+                    self.pi.set_mode(pin, pigpio.OUTPUT)
+                    self.pi.set_PWM_dutycycle(pin, 0)
+                    print("PWM set to {:d} Hz".format(self.pi.set_PWM_frequency(pin, value["freq"])))
                 else:
-                    print("GPIO pin with unknown direction", p)
+                    print("GPIO pin with unknown direction", pin)
                     exit()
 
     def ioOn(self, name):
@@ -93,7 +100,13 @@ class fsIO:
     def pumpStart(self, name):
         if self.ioOn(name):
             print("Started {:s}".format(name))
+        # TODO - testing
+        pin = self.pins["meter test"]
+        self.pi.set_PWM_dutycycle(pin["pin"], 128)
 
     def pumpStop(self, name):
         if self.ioOff(name):
             print("Stopped {:s}".format(name))
+        # TODO - testing
+        pin = self.pins["meter test"]
+        self.pi.set_PWM_dutycycle(pin["pin"], 0)
