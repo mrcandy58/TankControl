@@ -26,18 +26,14 @@ class Pump:
             self.run()
 
     def run(self):
-        if self.permissive and not self.alarm:
+        if not self.state and self.permissive and not self.alarm:
             self.state = True
             self.fs.io.pumpStart(self.name)
-            #  The following is only for testing, needs to be removed
-            self.fs.flowrate = 100
 
     def stop(self):
         if self.state:
             self.state = False
             self.fs.io.pumpStop(self.name)
-            #  The following is only for testing, needs to be removed
-            self.fs.flowrate = 0
 
     def setPermissive(self, perm):
         self.permissive = perm

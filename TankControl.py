@@ -7,7 +7,7 @@ from fsio import fsIO
 
 class FuelSystem:
     def __init__(self, fsApp):
-        self.refresh = 50  # msec
+        self.refresh = 250  # msec
         self.tankSize = 200  # L
 
         self.flowrate = 0  # L/m

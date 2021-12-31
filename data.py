@@ -9,8 +9,13 @@ class CreateData:
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
         self.delta = 0
         self.count = 0
-        self.time = 0  # msec
-        self.volume = 0.0  # L
+        self.time = 0  # msec to run pump
+        self.targetVol = 0.0  # L to xfer
+        self.volume = 0.0   # Volume since start
+        self.deltaV = 0.0   # Volume since last check
+        self.flowrate = 0.0     # Instantaneous flowrate
+        self.K = 11.0   # Flowmeter factor to change L/m to frequency ( f = K * Q )
+
         col = 0
         b = Box(self.box, align="left", width=100, height=200)
         Text(b, text="", color="white")
@@ -115,15 +120,35 @@ class CreateData:
         self.updateData()
 
     def updateData(self):
+        self.flowrate = self.fs.io.counter.tally() / (self.fs.refresh / 1000) / self.K
+        self.fs.canvas.tk.itemconfigure(self.fs.pid.meter.flowRate, text="{:3.1f} L/m".format(self.flowrate))
+
+        if self.fs.pid.pump.state:
+            v = self.fs.io.counter.tally() / self.K / 60.0
+        else:
+            self.fs.io.counter.reset_tally()
+            v = 0
+        self.deltaV = v - self.volume
+        self.volume = v
+
+        # TODO Remove following if/elif to update tank levels - for testing only
+        # TODO Update tank level and percent from N2k
+        if self.fs.pid.portSuctionValve.state and self.fs.pid.stbdDischargeValve.state and self.fs.pid.pump.state:
+            self.fs.portLevel -= self.deltaV
+            self.fs.stbdLevel += self.deltaV
+        elif self.fs.pid.stbdSuctionValve and self.fs.pid.portDischargeValve.state and self.fs.pid.pump.state:
+            self.fs.portLevel += self.deltaV
+            self.fs.stbdLevel -= self.deltaV
+
         self.portPercent.value = "{:0.1f}".format(self.fs.getPortPercent())
         self.portLiters.value = "{:4.1f}".format(self.fs.portLevel)
         self.stbdPercent.value = "{:0.1f}".format(self.fs.getStbdPercent())
         self.stbdLiters.value = "{:4.1f}".format(self.fs.stbdLevel)
 
-        self.volume -= self.fs.flowrate / 60 * self.fs.refresh / 1000
-        if self.volume < 0.0:
-            self.volume = 0.0
-        self.volumeStr.value = "{:3.1f}".format(self.volume)
+        togo = self.targetVol - self.volume
+        if togo < 0.0:
+            togo = 0.0
+        self.volumeStr.value = "{:3.1f}".format(togo)
 
         if self.fs.pid.pump.state:
             self.time -= self.fs.refresh
@@ -132,10 +157,14 @@ class CreateData:
             self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
                                                         int(self.time % (60 * 1000) / 1000))
 
-        if self.volume == 0.0 and self.time == 0 and self.fs.pid.pump.state:
+        if togo == 0.0 and self.time == 0 and self.fs.pid.pump.state:
             self.fs.pid.pump.stop()
             self.fs.pid.allValvesClose()
             self.portSrc.value = self.portDst.value = self.stbdSrc.value = self.stbdDst.value = False
+            self.targetVol = 0.0
+            self.time = 0
+            self.fs.io.counter.reset_tally()
+            print("Xfer complete", self.fs.io.counter.tally())
 
     def doValve(self, checkbox):
         if checkbox == self.portSrc:
@@ -177,12 +206,12 @@ class CreateData:
         print("In VolUp")
         if self.count == 0:
             return
-        self.volume += self.delta
-        if self.volume >= 200.0:
-            self.volume = 200.0
-            self.volumeStr.value = "{:3.1f}".format(self.volume)
+        self.targetVol += self.delta
+        if self.targetVol >= 200.0:
+            self.targetVol = 200.0
+            self.volumeStr.value = "{:3.1f}".format(self.targetVol)
             return
-        self.volumeStr.value = "{:3.1f}".format(self.volume)
+        self.volumeStr.value = "{:3.1f}".format(self.targetVol)
         self.count += 1
         if self.count == 6:
             self.delta *= 10
@@ -202,12 +231,12 @@ class CreateData:
         print("In VolDn")
         if self.count == 0:
             return
-        self.volume += self.delta
-        if self.volume <= 0.0:
-            self.volume = 0.0
-            self.volumeStr.value = "{:3.1f}".format(self.volume)
+        self.targetVol += self.delta
+        if self.targetVol <= 0.0:
+            self.targetVol = 0.0
+            self.volumeStr.value = "{:3.1f}".format(self.targetVol)
             return
-        self.volumeStr.value = "{:3.1f}".format(self.volume)
+        self.volumeStr.value = "{:3.1f}".format(self.targetVol)
         self.count += 1
         if self.count == 6:
             self.delta *= 10

@@ -3,6 +3,7 @@ from pump import Pump
 from filter import Filter
 from meter import Meter
 
+
 class CreatePID:
     def __init__(self, fs):
         self.fs = fs
@@ -60,9 +61,6 @@ class CreatePID:
             return False
 
     def updatePID(self):
-        # The following is only for testing, needs to be removed
-        self.updateTanks()
-
         if self.fs.data is not None:
             self.fs.data.updateData()
 
@@ -97,17 +95,6 @@ class CreatePID:
         y0 += 1
         y0 = y0 + ((y1 - y0) * (100 - self.fs.getStbdPercent()) / 100)
         self.fs.canvas.tk.coords(self.stbdFuel, x0, y0, x1, y1)
-
-    def updateTanks(self):
-        if self.pump.state:
-            if self.portSuctionValve.state:
-                self.fs.portLevel = self.fs.portLevel - self.fs.flowrate / 60 * self.fs.refresh / 1000
-            if self.stbdSuctionValve.state:
-                self.fs.stbdLevel = self.fs.stbdLevel - self.fs.flowrate / 60 * self.fs.refresh / 1000
-            if self.portDischargeValve.state:
-                self.fs.portLevel = self.fs.portLevel + self.fs.flowrate / 60 * self.fs.refresh / 1000
-            if self.stbdDischargeValve.state:
-                self.fs.stbdLevel = self.fs.stbdLevel + self.fs.flowrate / 60 * self.fs.refresh / 1000
 
     def allValvesClose(self):
         if self.portSuctionValve.state:
