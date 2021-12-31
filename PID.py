@@ -70,6 +70,18 @@ class CreatePID:
                 self.stbdTank.alarm = False
                 self.updatePID()
 
+        if self.portSuctionValve.isValveHit(event.x, event.y):
+            self.portSuctionValve.toggle()
+
+        if self.portDischargeValve.isValveHit(event.x, event.y):
+            self.portDischargeValve.toggle()
+
+        if self.stbdSuctionValve.isValveHit(event.x, event.y):
+            self.stbdSuctionValve.toggle()
+
+        if self.stbdDischargeValve.isValveHit(event.x, event.y):
+            self.stbdDischargeValve.toggle()
+
     def isPathOpen(self):
         if (self.portSuctionValve.state or self.stbdSuctionValve.state) and \
                 (self.portDischargeValve.state or self.stbdDischargeValve.state):

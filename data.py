@@ -57,6 +57,8 @@ class CreateData:
         self.portSrc = CheckBox(b2, text="Port", width=w)
         self.portSrc.bg = self.portDst.bg = "red4"
         self.portSrc.text_size = self.portDst.text_size = 20
+        self.fs.pid.portSuctionValve.checkbox = self.portSrc
+        self.fs.pid.portDischargeValve.checkbox = self.portDst
 
         col += 1
         b = Box(self.box, align="left", width=w, height=200)
@@ -68,6 +70,8 @@ class CreateData:
         self.stbdSrc = CheckBox(b2, text="Stbd", width=w)
         self.stbdSrc.bg = self.stbdDst.bg = "green4"
         self.stbdSrc.text_size = self.stbdDst.text_size = 20
+        self.fs.pid.stbdSuctionValve.checkbox = self.stbdSrc
+        self.fs.pid.stbdDischargeValve.checkbox = self.stbdDst
 
         col += 1
         b = Box(self.box, align="left", width=40, height=200)

@@ -31,7 +31,6 @@ if __name__ == '__main__':
 
 # TODO
 # - add stop button
-# - make valve's hit targets and turn on/off
 # - publish/lookup host name??
 # - start pigpiod at Pi boot
 # - Pi is running Python 3.7 or 3.8, not 3.10?
