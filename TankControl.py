@@ -30,7 +30,6 @@ if __name__ == '__main__':
     app.display()
 
 # TODO
-# - check for hh/ll tank limits and shutdown with alarm
 # - add stop button
 # - make valve's hit targets and turn on/off
 # - publish/lookup host name??
