@@ -1,8 +1,13 @@
 from guizero import Box, Text, TextBox, CheckBox, PushButton
+import os
 
 
 class CreateData:
     def __init__(self, fs):
+        try:
+            self.path = os.environ['TANK']
+        except KeyError:
+            self.path = "."
         self.fs = fs
         self.box = Box(self.fs.app, align="top", width=1024, height=200)
         self.box.bg = "grey20"
@@ -79,10 +84,10 @@ class CreateData:
 
         col += 1
         b = Box(self.box, align="left", width=40, height=200)
-        self.volUp = PushButton(b, text="^", image="up_arrow.png", pady=5)
+        self.volUp = PushButton(b, text="^", image=self.path + "/up_arrow.png", pady=5)
         self.volUp.when_left_button_pressed = self.volUpStart
         self.volUp.when_left_button_released = self.volUpEnd
-        self.timUp = PushButton(b, text="^", image="up_arrow.png", pady=5)
+        self.timUp = PushButton(b, text="^", image=self.path + "/up_arrow.png", pady=5)
         self.timUp.when_left_button_pressed = self.timUpStart
         self.timUp.when_left_button_released = self.timUpEnd
         self.volUp.bg = self.timUp.bg = "white"
@@ -91,10 +96,10 @@ class CreateData:
 
         col += 1
         b = Box(self.box, align="left", width=40, height=200)
-        self.volDn = PushButton(b, text="v", image="down_arrow.png", pady=5)
+        self.volDn = PushButton(b, text="v", image=self.path + "/down_arrow.png", pady=5)
         self.volDn.when_left_button_pressed = self.volDnStart
         self.volDn.when_left_button_released = self.volDnEnd
-        self.timDn = PushButton(b, text="v", image="down_arrow.png", pady=5)
+        self.timDn = PushButton(b, text="v", image=self.path + "/down_arrow.png", pady=5)
         self.timDn.when_left_button_pressed = self.timDnStart
         self.timDn.when_left_button_released = self.timDnEnd
         self.volDn.bg = self.timDn.bg = "white"
