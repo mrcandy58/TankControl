@@ -4,7 +4,7 @@ import pigpio
 class fsIO:
     def __init__(self, fs):
         self.fs = fs
-        self.host = "192.168.1.86"  # host address
+        self.host = "192.168.1.70"  # host address
         self.busNumber = 1          # I2C bus
         self.addr = 0x10            # Relay board I2C address
 
