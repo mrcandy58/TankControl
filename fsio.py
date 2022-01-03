@@ -19,7 +19,7 @@ class fsIO:
 
             "fuel flow":        {"direction": "freq", "bus": "gp", "pin": 4},
 
-            "meter test":       {"direction": "pwm", "bus": "gp", "pin": 27, "freq": 1100}
+            "meter test":       {"direction": "pwm", "bus": "gp", "pin": 27, "freq": 110}
 
         }
 

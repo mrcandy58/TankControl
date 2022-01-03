@@ -1,5 +1,6 @@
-from guizero import Box, Text, TextBox, CheckBox, PushButton
 import os
+import time
+from guizero import Box, Text, TextBox, CheckBox, PushButton
 
 
 class CreateData:
@@ -14,11 +15,12 @@ class CreateData:
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
         self.delta = 0
         self.count = 0
-        self.time = 0  # msec to run pump
+        self.timer = 0  # msec to run pump
         self.togo = 0.0  # L to xfer
         self.tallyP = 0.0  # Last tally on previous check
         self.flowrate = 0.0  # Instantaneous flowrate
         self.K = 1 / 660.0  # Flowmeter factor L/pulse
+        self.clock = time.time()
 
         col = 0
         b = Box(self.box, align="left", width=100, height=200)
@@ -150,9 +152,9 @@ class CreateData:
                 msec = (int(t1) * 60 + int(t2)) * 1000
             except ValueError:
                 msec = 0
-            self.time = msec
-            self.timeStr.value = "{:2d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                       int(self.time % (60 * 1000) / 1000))
+            self.timer = msec
+            self.timeStr.value = "{:2d}:{:02d}".format(int(self.timer / (60 * 1000)),
+                                                       int(self.timer % (60 * 1000) / 1000))
 
     def esd(self):
         print("ESD")
@@ -160,6 +162,11 @@ class CreateData:
         self.fs.pid.allValvesClose()
 
     def updateData(self):
+        # Check the timer
+        t = time.time()
+        deltaClock = (t - self.clock) * 1000.0
+        self.clock = t
+
         # Check filter state
         pin = self.fs.io.pins["primary filter"]
         if self.fs.io.pi.read(pin["pin"]):
@@ -173,7 +180,7 @@ class CreateData:
         self.tallyP = t
 
         # Convert pulses in last refresh period to flow rate
-        self.fs.pid.meter.updateFlowrate(deltaT * self.K / (self.fs.refresh / 1000) * 60.0)  # L/m
+        self.fs.pid.meter.updateFlowrate(deltaT * self.K / (deltaClock / 1000) * 60.0)  # L/m
 
         # Calculate volume from pulses
         deltaV = deltaT * self.K
@@ -207,14 +214,14 @@ class CreateData:
                 self.togo = 0.0
             self.volumeStr.value = "{:3.1f}".format(self.togo)
 
-            self.time -= self.fs.refresh
-            if self.time < 0:
-                self.time = 0
-            self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                        int(self.time % (60 * 1000) / 1000))
+            self.timer -= deltaClock
+            if self.timer < 0:
+                self.timer = 0
+            self.timeStr.value = "{:02d}:{:02d}".format(int(self.timer / (60 * 1000)),
+                                                        int(self.timer % (60 * 1000) / 1000))
 
         # Check if xfer is complete
-        if self.togo == 0.0 and self.time == 0 and self.fs.pid.pump.state:
+        if self.togo == 0.0 and self.timer == 0 and self.fs.pid.pump.state:
             self.fs.pid.pump.stop()
             self.fs.pid.allValvesClose()
             self.portSrc.value = self.portDst.value = self.stbdSrc.value = self.stbdDst.value = False
@@ -300,14 +307,14 @@ class CreateData:
     def doTimUp(self):
         if self.count == 0:
             return
-        self.time += self.delta
-        if self.time >= 20 * 60 * 1000:
-            self.time = 20 * 60 * 1000
-            self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                        int(self.time % (60 * 1000) / 1000))
+        self.timer += self.delta
+        if self.timer >= 20 * 60 * 1000:
+            self.timer = 20 * 60 * 1000
+            self.timeStr.value = "{:02d}:{:02d}".format(int(self.timer / (60 * 1000)),
+                                                        int(self.timer % (60 * 1000) / 1000))
             return
-        self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                    int(self.time % (60 * 1000) / 1000))
+        self.timeStr.value = "{:02d}:{:02d}".format(int(self.timer / (60 * 1000)),
+                                                    int(self.timer % (60 * 1000) / 1000))
         self.count += 1
         if self.count == 5:
             self.delta = 1 * 60 * 1000
@@ -326,14 +333,14 @@ class CreateData:
     def doTimDn(self):
         if self.count == 0:
             return
-        self.time += self.delta
-        if self.time <= 0:
-            self.time = 0
-            self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                        int(self.time % (60 * 1000) / 1000))
+        self.timer += self.delta
+        if self.timer <= 0:
+            self.timer = 0
+            self.timeStr.value = "{:02d}:{:02d}".format(int(self.timer / (60 * 1000)),
+                                                        int(self.timer % (60 * 1000) / 1000))
             return
-        self.timeStr.value = "{:02d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                    int(self.time % (60 * 1000) / 1000))
+        self.timeStr.value = "{:02d}:{:02d}".format(int(self.timer / (60 * 1000)),
+                                                    int(self.timer % (60 * 1000) / 1000))
 
         self.count += 1
         if self.count == 5:

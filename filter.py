@@ -3,6 +3,7 @@ class Filter:
         self.x = x
         self.y = y
         self.fs = fs
+        self.name = name
         self.state = state
         self.size = size
         self.offset = offset
