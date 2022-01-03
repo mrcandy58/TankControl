@@ -36,8 +36,8 @@ class CreatePID:
 
         self.filter = Filter(self.fs, 400, 180, "primary filter")
         self.pump = Pump(self.fs, 500, 180, "xfer pump")
-        self.meter = Meter(self.fs, 600, 180, "fuel flow"
-                           )
+        self.meter = Meter(self.fs, 600, 180, "fuel flow")
+
         self.portFuel = self.fs.canvas.rectangle(101, 101, 198, 298, outline=False, color="deepskyblue")
         self.stbdFuel = self.fs.canvas.rectangle(801, 101, 898, 298, outline=False, color="deepskyblue")
 
@@ -68,6 +68,11 @@ class CreatePID:
         if self.stbdTank.isTankHit(event.x, event.y):
             if self.stbdTank.alarm:
                 self.stbdTank.alarm = False
+                self.updatePID()
+
+        if self.meter.isMeterHit(event.x, event.y):
+            if self.meter.alarm:
+                self.meter.alarm = False
                 self.updatePID()
 
         if self.portSuctionValve.isValveHit(event.x, event.y):
@@ -128,6 +133,19 @@ class CreatePID:
 
         self.fs.canvas.tk.itemconfigure(self.pump.shell, outline=color)
         self.fs.canvas.tk.itemconfigure(self.pump.impeller, outline=color)
+
+        # Check for meter alarm
+        if self.meter.alarm:
+            if self.flash:
+                color = "yellow"
+            else:
+                color = "grey"
+        else:
+            color = "grey"
+
+        self.fs.canvas.tk.itemconfigure(self.meter.shell, outline=color)
+        self.fs.canvas.tk.itemconfigure(self.meter.imp_top, outline=color)
+        self.fs.canvas.tk.itemconfigure(self.meter.imp_btm, outline=color)
 
         # Check for tank alarm
         if self.portTank.alarm:

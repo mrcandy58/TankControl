@@ -14,11 +14,11 @@ class CreateData:
         self.portSrc = self.portDst = self.stbdSrc = self.stbdDst = None
         self.delta = 0
         self.count = 0
-        self.time = 0           # msec to run pump
-        self.togo = 0.0         # L to xfer
-        self.tallyP = 0.0       # Last tally on previous check
-        self.flowrate = 0.0     # Instantaneous flowrate
-        self.K = 1 / 660.0      # Flowmeter factor L/pulse
+        self.time = 0  # msec to run pump
+        self.togo = 0.0  # L to xfer
+        self.tallyP = 0.0  # Last tally on previous check
+        self.flowrate = 0.0  # Instantaneous flowrate
+        self.K = 1 / 660.0  # Flowmeter factor L/pulse
 
         col = 0
         b = Box(self.box, align="left", width=100, height=200)
@@ -152,7 +152,7 @@ class CreateData:
                 msec = 0
             self.time = msec
             self.timeStr.value = "{:2d}:{:02d}".format(int(self.time / (60 * 1000)),
-                                                        int(self.time % (60 * 1000) / 1000))
+                                                       int(self.time % (60 * 1000) / 1000))
 
     def esd(self):
         print("ESD")
@@ -173,11 +173,13 @@ class CreateData:
         self.tallyP = t
 
         # Convert pulses in last refresh period to flow rate
-        self.flowrate = deltaT * self.K / (self.fs.refresh / 1000) * 60.0  # L/m
-        self.fs.canvas.tk.itemconfigure(self.fs.pid.meter.flowRate, text="{:3.1f} L/m".format(self.flowrate))
+        self.fs.pid.meter.updateFlowrate(deltaT * self.K / (self.fs.refresh / 1000) * 60.0)  # L/m
 
         # Calculate volume from pulses
         deltaV = deltaT * self.K
+
+        # Check pump startup bypass on meter
+        self.fs.pid.meter.checkMinFlow()
 
         # TODO Remove following if/elif to update tank levels - for testing only
         # TODO Update tank level and percent from N2k
