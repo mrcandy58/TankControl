@@ -8,6 +8,7 @@ class Meter:
         self.alarm = False
         self.startupBypass = 0
         self.flowrate = 0.0
+        self.filter = 0.0
 
         self.shell = self.fs.canvas.rectangle(self.x - 10, self.y - 30, self.x + 10, self.y + 30,
                                               color="grey20", outline=3, outline_color="gray")
@@ -23,7 +24,7 @@ class Meter:
                self.y - 30 <= y <= self.y + 30
 
     def updateFlowrate(self, flow):
-        self.flowrate = flow
+        self.flowrate = (flow + self.flowrate * self.filter) / (self.filter + 1.0)
         self.fs.canvas.tk.itemconfigure(self.flowRateStr,
                                         text="{:3.1f} L/m".format(self.flowrate))
 

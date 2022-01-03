@@ -30,12 +30,14 @@ class Pump:
                 and self.fs.pid.filter.permissive \
                 and self.fs.pid.stbdTank.permissive and self.fs.pid.portTank.permissive:
             self.state = True
+            self.fs.pid.meter.filter = 4.0  # Add some averaging into the meter flowrate
             self.fs.io.pumpStart(self.name)
             self.fs.pid.meter.startBypassTimer()
 
     def stop(self):
         if self.state:
             self.state = False
+            self.fs.pid.meter.filter = 0.0  # Remove averaging from meter flowrate
             self.fs.pid.meter.startupBypass = 0
             self.fs.io.pumpStop(self.name)
 
