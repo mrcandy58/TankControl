@@ -46,5 +46,4 @@ if __name__ == '__main__':
     main()
 
 # TODO
-# - publish/lookup host name??
 # - Pi is running Python 3.7 or 3.8, not 3.10?
