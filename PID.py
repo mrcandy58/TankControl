@@ -48,6 +48,9 @@ class CreatePID:
 
     def flasher(self):
         from tkinter import TclError
+        from sys import stdout
+
+        stdout.flush()
         try:
             self.flash = not self.flash
             self.updatePID()
