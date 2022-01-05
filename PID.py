@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 from valve import Valve
 from pump import Pump
 from filter import Filter
@@ -44,8 +47,24 @@ class CreatePID:
         self.fs.canvas.when_clicked = self.clicked
 
     def flasher(self):
-        self.flash = not self.flash
-        self.updatePID()
+        from tkinter import TclError
+        try:
+            self.flash = not self.flash
+            self.updatePID()
+        except TclError as err:
+            if 'invalid command name' not in err.args[0]:
+                print("Got unknown TclError")
+                print(traceback.format_exc())
+                self.fs.on_closing()
+                raise
+            else:
+                print("Abort")
+                self.fs.on_closing()
+        except:
+            print("Got exception other than TclError")
+            print(traceback.format_exc())
+            self.fs.on_closing()
+            raise
 
     def clicked(self, event):
         if self.pump.isPumpHit(event.x, event.y):

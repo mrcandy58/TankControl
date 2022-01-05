@@ -39,8 +39,9 @@ class Valve:
         if self.checkbox is not None:
             self.checkbox.value = False
         self.fs.io.valveClose(self.name)
-        self.fs.canvas.tk.itemconfigure(self.left, fill="red")
-        self.fs.canvas.tk.itemconfigure(self.right, fill="red")
+        if self.fs.halt is not True:
+            self.fs.canvas.tk.itemconfigure(self.left, fill="red")
+            self.fs.canvas.tk.itemconfigure(self.right, fill="red")
         if doCheck:
             self.fs.pid.pump.setPermissive(self.fs.pid.isPathOpen())
 

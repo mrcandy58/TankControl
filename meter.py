@@ -1,8 +1,7 @@
-
 class Meter:
     def __init__(self, fs, x, y, name):
         self.filterK = 4.0
-        self.bypass = 3.0   # Seconds
+        self.bypass = 3.0  # Seconds
         self.fs = fs
         self.x = x
         self.y = y
@@ -27,8 +26,9 @@ class Meter:
 
     def updateFlowrate(self, i_flow):
         self.flowrate = (i_flow + self.flowrate * self.filter) / (self.filter + 1.0)
-        self.fs.canvas.tk.itemconfigure(self.flowRateStr,
-                                        text="{:3.1f} L/m".format(self.flowrate))
+        if self.fs.halt is not True:
+            self.fs.canvas.tk.itemconfigure(self.flowRateStr,
+                                            text="{:3.1f} L/m".format(self.flowrate))
 
     def startBypassTimer(self):
         self.startupBypass = self.bypass * 1000.0
