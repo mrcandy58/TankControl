@@ -15,12 +15,11 @@ class FuelSystem:
         self.canvas = Drawing(self.app, 1024, 325)
         self.canvas.bg = "grey20"
         self.pid = CreatePID(self)
+        self.data = CreateData(self)
 
         # TODO - for testing only
         self.pid.portTank.setLevel(100.0)  # Liters
         self.pid.stbdTank.setLevel(180.0)  # Liters
-
-        self.data = CreateData(self)
 
     def on_closing(self):
         print("===================\nSystem shutting down")
